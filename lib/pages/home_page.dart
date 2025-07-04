@@ -7,6 +7,8 @@ import 'package:ecommerce/providers/product_provider.dart';
 import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
+import 'package:ecommerce/utils/custom_page_route.dart';
+import 'package:ecommerce/providers/currency_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,6 +29,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final currencyProvider = context.watch<CurrencyProvider>();
+
     return Center(
       child: Container(
         constraints: BoxConstraints(
@@ -113,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            '\$${product.salePrice}',
+                                            '${product.salePrice} ${currencyProvider.currencyCode}',
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 16,
@@ -156,10 +160,9 @@ class _HomePageState extends State<HomePage> {
                                       onTap: () {
                                         Navigator.push(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                CategoryProductsPage(
-                                                    category: category),
+                                          CustomPageRoute(
+                                            child: CategoryProductsPage(
+                                                category: category),
                                           ),
                                         );
                                       },

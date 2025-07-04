@@ -16,17 +16,20 @@ import 'package:ecommerce/providers/auth_provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/navigation_provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
+import 'package:ecommerce/providers/order_provider.dart';
+import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:ecommerce/widgets/exit_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets/gradient_app_bar.dart';
 import 'widgets/gradient_bottom_nav_bar.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/rendering.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final prefs = await SharedPreferences.getInstance();
   runApp(
@@ -41,6 +44,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ColorProvider(prefs)),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => CurrencyProvider()),
       ],
       child: MyApp(prefs: prefs),
     ),
@@ -63,7 +68,8 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           scrollBehavior: const MaterialScrollBehavior().copyWith(
-              dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse}),
+            dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
+          ),
           title: 'ecommerce',
           theme: AppThemes.getTheme(
             isDark: false,
@@ -78,6 +84,12 @@ class MyApp extends StatelessWidget {
           themeMode: themeProvider.themeMode,
           locale: languageProvider.locale,
           supportedLocales: const [Locale('en'), Locale('ar')],
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           home: PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, result) async {
@@ -110,9 +122,7 @@ class Home extends StatelessWidget {
             title: Text(navigationProvider.currentPageTitle),
           );
         } else {
-          appBar = AppBar(
-            title: Text(navigationProvider.currentPageTitle),
-          );
+          appBar = AppBar(title: Text(navigationProvider.currentPageTitle));
         }
 
         Widget bottomNav;
@@ -147,8 +157,6 @@ class SearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Search Page'),
-    );
+    return const Center(child: Text('Search Page'));
   }
 }

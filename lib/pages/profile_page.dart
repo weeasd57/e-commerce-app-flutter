@@ -5,6 +5,9 @@ import 'package:ecommerce/pages/auth/auth_page.dart';
 import 'package:ecommerce/providers/theme_provider.dart';
 import 'package:ecommerce/pages/wishlist_page.dart';
 import 'package:ecommerce/pages/color_settings_page.dart';
+import 'package:ecommerce/pages/orders_page.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:ecommerce/utils/custom_page_route.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -23,6 +26,7 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildProfile(BuildContext context, AuthProvider authProvider) {
     final user = authProvider.user!;
+    final localization = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       child: SizedBox(
@@ -62,7 +66,7 @@ class ProfilePage extends StatelessWidget {
             _buildProfileOption(
               context,
               icon: Icons.person_outline,
-              title: 'تغيير الاسم',
+              title: localization.changeName,
               onTap: () {
                 // Handle name change
               },
@@ -70,39 +74,58 @@ class ProfilePage extends StatelessWidget {
             _buildProfileOption(
               context,
               icon: Icons.lock_outline,
-              title: 'تغيير كلمة المرور',
-              onTap: () {
-                // Handle password change
+              title: localization.changePassword,
+              onTap: () async {
+                final email = authProvider.user?.email;
+                if (email == null || email.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(localization.noEmailFound)),
+                  );
+                  return;
+                }
+                try {
+                  await authProvider.resetPassword(email, context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(localization.passwordResetLinkSent)),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString())),
+                  );
+                }
               },
             ),
             _buildProfileOption(
               context,
               icon: Icons.shopping_bag_outlined,
-              title: 'طلباتي',
+              title: localization.myOrders,
               onTap: () {
-                // Navigate to orders
+                Navigator.push(
+                  context,
+                  CustomPageRoute(child: const OrdersPage()),
+                );
               },
             ),
             _buildProfileOption(
               context,
               icon: Icons.favorite_border,
-              title: 'المفضلة',
+              title: localization.wishlist,
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const WishlistPage()),
+                  CustomPageRoute(child: const WishlistPage()),
                 );
               },
             ),
             _buildProfileOption(
               context,
               icon: Icons.color_lens_outlined,
-              title: 'تغيير لون التطبيق',
+              title: localization.changeAppColor,
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const ColorSettingsPage(),
+                  CustomPageRoute(
+                    child: const ColorSettingsPage(),
                   ),
                 );
               },
@@ -112,25 +135,10 @@ class ProfilePage extends StatelessWidget {
                 value: themeProvider.isDarkMode,
                 onChanged: (value) => themeProvider.toggleTheme(),
                 secondary: const Icon(Icons.dark_mode_outlined),
-                title: const Text('الوضع الليلي'),
+                title: Text(localization.darkMode),
               ),
             ),
-            _buildProfileOption(
-              context,
-              icon: Icons.help_outline,
-              title: 'المساعدة',
-              onTap: () {
-                // Show help
-              },
-            ),
-            _buildProfileOption(
-              context,
-              icon: Icons.info_outline,
-              title: 'من نحن',
-              onTap: () {
-                // Show about
-              },
-            ),
+            // تم حذف خيارات المساعدة ومن نحن بناءً على طلب المستخدم
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(20),
@@ -143,9 +151,9 @@ class ProfilePage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text(
-                  'تسجيل الخروج',
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  localization.signOut,
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),

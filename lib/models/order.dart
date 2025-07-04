@@ -1,3 +1,4 @@
+
 class Order {
   final String id;
   final String userId;
@@ -5,7 +6,9 @@ class Order {
   final double total;
   final String status;
   final DateTime createdAt;
-  final String? shippingAddress;
+  final String name;
+  final String phone;
+  final String address;
   final String? paymentMethod;
 
   Order({
@@ -15,20 +18,28 @@ class Order {
     required this.total,
     required this.status,
     required this.createdAt,
-    this.shippingAddress,
+    required this.name,
+    required this.phone,
+    required this.address,
     this.paymentMethod,
   });
 
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
-      id: map['id'] as String,
-      userId: map['userId'] as String,
-      items: (map['items'] as List).map((item) => OrderItem.fromMap(item)).toList(),
-      total: (map['total'] as num).toDouble(),
-      status: map['status'] as String,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      shippingAddress: map['shippingAddress'] as String?,
-      paymentMethod: map['paymentMethod'] as String?,
+      id: map['id'] as String? ?? '',
+      userId: map['userId'] as String? ?? '',
+      items: (map['items'] as List? ?? []).map((item) => OrderItem.fromMap(item as Map<String, dynamic>)).toList(),
+      total: (map['total'] as num?)?.toDouble() ?? 0.0,
+      status: map['status'] as String? ?? '',
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] is DateTime
+              ? map['createdAt'] as DateTime
+              : DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now())
+          : DateTime.now(),
+      name: map['name'] as String? ?? '',
+      phone: map['phone'] as String? ?? '',
+      address: map['address'] as String? ?? '',
+      paymentMethod: map['paymentMethod'] as String? ?? '',
     );
   }
 
@@ -40,7 +51,9 @@ class Order {
       'total': total,
       'status': status,
       'createdAt': createdAt.toIso8601String(),
-      'shippingAddress': shippingAddress,
+      'name': name,
+      'phone': phone,
+      'address': address,
       'paymentMethod': paymentMethod,
     };
   }
@@ -63,11 +76,13 @@ class OrderItem {
 
   factory OrderItem.fromMap(Map<String, dynamic> map) {
     return OrderItem(
-      productId: map['productId'] as String,
-      productName: map['productName'] as String,
-      quantity: map['quantity'] as int,
-      price: (map['price'] as num).toDouble(),
-      imageUrl: map['imageUrl'] as String?,
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      quantity: map['quantity'] is int
+          ? map['quantity'] as int
+          : int.tryParse(map['quantity']?.toString() ?? '') ?? 0,
+      price: (map['price'] as num?)?.toDouble() ?? 0.0,
+      imageUrl: map['imageUrl'] as String? ?? '',
     );
   }
 

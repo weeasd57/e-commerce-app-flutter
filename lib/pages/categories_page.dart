@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
+import 'package:ecommerce/utils/custom_page_route.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -36,9 +37,8 @@ class CategoriesPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CategoryProductsPage(category: category),
+                        CustomPageRoute(
+                          child: CategoryProductsPage(category: category),
                         ),
                       );
                     },

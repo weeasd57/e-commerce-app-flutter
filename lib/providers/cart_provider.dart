@@ -8,6 +8,7 @@ import 'package:ecommerce/providers/navigation_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:ecommerce/utils/custom_page_route.dart';
 
 class CartProvider with ChangeNotifier {
   final _db = FirebaseFirestore.instance;
@@ -189,9 +190,8 @@ class CartProvider with ChangeNotifier {
   }) async {
     final authProvider = context.read<AuthProvider>();
     if (!authProvider.isLoggedIn) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const AuthPage()),
+      Navigator.of(context).push(
+        CustomPageRoute(child: const AuthPage()),
       );
       return;
     }

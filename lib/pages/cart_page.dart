@@ -3,12 +3,17 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/pages/checkout_page.dart';
+import 'package:ecommerce/utils/custom_page_route.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:ecommerce/providers/currency_provider.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -16,15 +21,15 @@ class CartPage extends StatelessWidget {
             maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
           ),
           padding: Responsive.scaffoldPadding(context),
-          child: Consumer<CartProvider>(
-            builder: (context, cartProvider, child) {
+          child: Consumer2<CartProvider, CurrencyProvider>(
+            builder: (context, cartProvider, currencyProvider, child) {
               if (cartProvider.isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
 
               if (cartProvider.items.isEmpty) {
-                return const Center(
-                  child: Text('Your cart is empty'),
+                return Center(
+                  child: Text(localization.yourCartIsEmpty),
                 );
               }
 
@@ -56,7 +61,8 @@ class CartPage extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                             title: Text(item.name),
-                            subtitle: Text('\$${item.price}'),
+                            subtitle: Text(
+                                '${item.price} ${currencyProvider.currencyCode}'),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -97,15 +103,15 @@ class CartPage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Total:',
-                              style: TextStyle(
+                            Text(
+                              localization.total,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              '\$${cartProvider.total.toStringAsFixed(2)}',
+                              '${cartProvider.total.toStringAsFixed(2)} ${currencyProvider.currencyCode}',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -120,11 +126,10 @@ class CartPage extends StatelessWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => const CheckoutPage()),
+                                CustomPageRoute(child: const CheckoutPage()),
                               );
                             },
-                            child: const Text('تأكيد الطلب'),
+                            child: Text(localization.confirmOrder),
                           ),
                         ),
                       ],

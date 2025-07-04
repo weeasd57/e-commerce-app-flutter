@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/auth_provider.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class RegisterPage extends StatefulWidget {
   final VoidCallback onLoginTap;
@@ -29,6 +30,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Form(
@@ -39,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'الاسم',
+                labelText: localization.name,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -48,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال الاسم';
+                  return localization.pleaseEnterName;
                 }
                 return null;
               },
@@ -57,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
             TextFormField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: 'البريد الإلكتروني',
+                labelText: localization.email,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -67,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال البريد الإلكتروني';
+                  return localization.pleaseEnterEmail;
                 }
                 return null;
               },
@@ -76,7 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
             TextFormField(
               controller: _passwordController,
               decoration: InputDecoration(
-                labelText: 'كلمة المرور',
+                labelText: localization.password,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -98,10 +101,10 @@ class _RegisterPageState extends State<RegisterPage> {
               obscureText: _obscurePassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال كلمة المرور';
+                  return localization.pleaseEnterPassword;
                 }
                 if (value.length < 6) {
-                  return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                  return localization.passwordLengthError;
                 }
                 return null;
               },
@@ -118,6 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 _emailController.text,
                                 _passwordController.text,
                                 _nameController.text,
+                                context,
                               );
                         } catch (e) {
                           if (mounted) {
@@ -147,16 +151,16 @@ class _RegisterPageState extends State<RegisterPage> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text('إنشاء حساب'),
+                  : Text(localization.createAccount),
             ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('لديك حساب بالفعل؟'),
+                Text(localization.alreadyHaveAccount),
                 TextButton(
                   onPressed: widget.onLoginTap,
-                  child: const Text('تسجيل الدخول'),
+                  child: Text(localization.signIn),
                 ),
               ],
             ),

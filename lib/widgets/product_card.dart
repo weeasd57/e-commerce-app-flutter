@@ -3,6 +3,7 @@ import 'package:ecommerce/models/product.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:ecommerce/providers/currency_provider.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -18,6 +19,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final currencyProvider = context.watch<CurrencyProvider>();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -140,7 +142,7 @@ class ProductCard extends StatelessWidget {
                               children: [
                                 if (isOnSale) ...[
                                   Text(
-                                    '\$${product.price}',
+                                    '${product.price} ${currencyProvider.currencyCode}',
                                     style: TextStyle(
                                       decoration: TextDecoration.lineThrough,
                                       color: colorScheme.outline,
@@ -148,7 +150,7 @@ class ProductCard extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    '\$${product.salePrice}',
+                                    '${product.salePrice} ${currencyProvider.currencyCode}',
                                     style: TextStyle(
                                       color: colorScheme.error,
                                       fontWeight: FontWeight.bold,
@@ -157,7 +159,7 @@ class ProductCard extends StatelessWidget {
                                   ),
                                 ] else
                                   Text(
-                                    '\$${product.price}',
+                                    '${product.price} ${currencyProvider.currencyCode}',
                                     style: TextStyle(
                                       color: colorScheme.primary,
                                       fontWeight: FontWeight.bold,

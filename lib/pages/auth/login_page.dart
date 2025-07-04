@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/auth_provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/navigation_provider.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onRegisterTap;
@@ -29,6 +30,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Form(
@@ -39,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
             TextFormField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: 'البريد الإلكتروني',
+                labelText: localization.email,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -49,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال البريد الإلكتروني';
+                  return localization.pleaseEnterEmail;
                 }
                 return null;
               },
@@ -58,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
             TextFormField(
               controller: _passwordController,
               decoration: InputDecoration(
-                labelText: 'كلمة المرور',
+                labelText: localization.password,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -80,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: _obscurePassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال كلمة المرور';
+                  return localization.pleaseEnterPassword;
                 }
                 return null;
               },
@@ -96,6 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                           await context.read<AuthProvider>().signIn(
                                 _emailController.text,
                                 _passwordController.text,
+                                context,
                               );
                           if (mounted) {
                             final cartProvider = context.read<CartProvider>();
@@ -136,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text('تسجيل الدخول'),
+                  : Text(localization.signIn),
             ),
             const SizedBox(height: 20),
             OutlinedButton.icon(
@@ -145,7 +149,9 @@ class _LoginPageState extends State<LoginPage> {
                   : () async {
                       setState(() => _isLoading = true);
                       try {
-                        await context.read<AuthProvider>().signInWithGoogle();
+                        await context
+                            .read<AuthProvider>()
+                            .signInWithGoogle(context);
                         if (mounted) {
                           context.read<NavigationProvider>().setPage(0);
                         }
@@ -171,16 +177,16 @@ class _LoginPageState extends State<LoginPage> {
                 'assets/images/google_logo.png',
                 height: 24,
               ),
-              label: const Text('تسجيل الدخول بواسطة جوجل'),
+              label: Text(localization.signInWithGoogle),
             ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('ليس لديك حساب؟'),
+                Text(localization.dontHaveAccount),
                 TextButton(
                   onPressed: widget.onRegisterTap,
-                  child: const Text('إنشاء حساب'),
+                  child: Text(localization.createAccount),
                 ),
               ],
             ),
