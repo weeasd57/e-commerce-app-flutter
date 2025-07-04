@@ -24,7 +24,6 @@ import 'widgets/gradient_app_bar.dart';
 import 'widgets/gradient_bottom_nav_bar.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter/rendering.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

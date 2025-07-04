@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce/models/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
 
 class WishlistProvider with ChangeNotifier {
   final List<String> _wishlistIds = [];
