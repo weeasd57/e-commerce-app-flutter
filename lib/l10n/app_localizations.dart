@@ -63,7 +63,7 @@ import 'app_localizations_en.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
-    Locale('en'),
+    Locale('en')
   ];
 
   /// No description provided for @appName.
@@ -301,6 +301,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Categories'**
   String get categories;
+
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// No description provided for @cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get cart;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @changeLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Language'**
+  String get changeLanguage;
+
+  /// No description provided for @enterNewName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new name'**
+  String get enterNewName;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @nameUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Name updated successfully!'**
+  String get nameUpdatedSuccessfully;
+
+  /// No description provided for @errorUpdatingName.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating name: {error}'**
+  String errorUpdatingName(Object error);
+
+  /// No description provided for @nameCannotBeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Name cannot be empty.'**
+  String get nameCannotBeEmpty;
+
+  /// No description provided for @itemAddedToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Item added to cart!'**
+  String get itemAddedToCart;
+
+  /// No description provided for @addedToWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to wishlist'**
+  String get addedToWishlist;
+
+  /// No description provided for @removedFromWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from wishlist'**
+  String get removedFromWishlist;
+
+  /// No description provided for @welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get welcome;
+
+  /// No description provided for @selectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your language'**
+  String get selectLanguage;
+
+  /// No description provided for @loginRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Required'**
+  String get loginRequired;
+
+  /// No description provided for @loginToAddCart.
+  ///
+  /// In en, this message translates to:
+  /// **'You must be logged in to add items to the cart.'**
+  String get loginToAddCart;
+
+  /// No description provided for @tutorialTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Our Amazing Products'**
+  String get tutorialTitle1;
+
+  /// No description provided for @tutorialDescription1.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover a wide range of products from various categories. Find exactly what you\'re looking for or explore new arrivals.'**
+  String get tutorialDescription1;
+
+  /// No description provided for @tutorialTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy and Secure Shopping Cart'**
+  String get tutorialTitle2;
+
+  /// No description provided for @tutorialDescription2.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your favorite items to the cart with a single tap. Enjoy a seamless and secure checkout process.'**
+  String get tutorialDescription2;
+
+  /// No description provided for @tutorialTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalized Profile and Orders'**
+  String get tutorialTitle3;
+
+  /// No description provided for @tutorialDescription3.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your profile, track your orders, and keep a wishlist of your desired products all in one place.'**
+  String get tutorialDescription3;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @themeMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Mode'**
+  String get themeMode;
+
+  /// No description provided for @lightMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Mode'**
+  String get lightMode;
+
+  /// No description provided for @chooseAppColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose App Color'**
+  String get chooseAppColor;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get welcomeBack;
+
+  /// No description provided for @createNewAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new account'**
+  String get createNewAccount;
+
+  /// No description provided for @loginToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to continue'**
+  String get loginToContinue;
+
+  /// No description provided for @createAccountToAccessFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account to access all features.'**
+  String get createAccountToAccessFeatures;
 }
 
 class _AppLocalizationsDelegate
@@ -330,9 +528,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:ecommerce/utils/custom_page_route.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class CartProvider with ChangeNotifier {
   final _db = FirebaseFirestore.instance;
@@ -57,12 +58,14 @@ class CartProvider with ChangeNotifier {
       _pendingProduct = product;
       _returnToIndex = navigationProvider.currentIndex;
 
+      final localization = AppLocalizations.of(context)!;
+
       final result = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
-          title: const Text('تسجيل الدخول مطلوب'),
-          content: const Text('يجب تسجيل الدخول لإضافة المنتجات إلى السلة'),
+          title: Text(localization.loginRequired),
+          content: Text(localization.loginToAddCart),
           actions: [
             TextButton(
               onPressed: () {
@@ -70,13 +73,13 @@ class CartProvider with ChangeNotifier {
                 _returnToIndex = null;
                 Navigator.pop(context, false);
               },
-              child: const Text('إلغاء'),
+              child: Text(localization.cancel),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context, true);
               },
-              child: const Text('تسجيل الدخول'),
+              child: Text(localization.signIn),
             ),
           ],
         ),
@@ -118,9 +121,9 @@ class CartProvider with ChangeNotifier {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تمت الإضافة إلى السلة'),
-            duration: Duration(seconds: 1),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.itemAddedToCart),
+            duration: const Duration(seconds: 1),
           ),
         );
       }

@@ -110,4 +110,109 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get categories => 'التصنيفات';
+
+  @override
+  String get home => 'الرئيسية';
+
+  @override
+  String get cart => 'السلة';
+
+  @override
+  String get profile => 'حسابي';
+
+  @override
+  String get changeLanguage => 'تغيير اللغة';
+
+  @override
+  String get enterNewName => 'أدخل الاسم الجديد';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get nameUpdatedSuccessfully => 'تم تحديث الاسم بنجاح!';
+
+  @override
+  String errorUpdatingName(Object error) {
+    return 'خطأ في تحديث الاسم: $error';
+  }
+
+  @override
+  String get nameCannotBeEmpty => 'لا يمكن أن يكون الاسم فارغًا.';
+
+  @override
+  String get itemAddedToCart => 'تمت الإضافة إلى السلة.';
+
+  @override
+  String get addedToWishlist => 'تمت الإضافة إلى المفضلة.';
+
+  @override
+  String get removedFromWishlist => 'تمت الإزالة من المفضلة.';
+
+  @override
+  String get welcome => 'أهلاً بك!';
+
+  @override
+  String get selectLanguage => 'اختر لغتك';
+
+  @override
+  String get loginRequired => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get loginToAddCart => 'يجب تسجيل الدخول لإضافة المنتجات إلى السلة.';
+
+  @override
+  String get tutorialTitle1 => 'تصفح منتجاتنا الرائعة';
+
+  @override
+  String get tutorialDescription1 =>
+      'اكتشف مجموعة واسعة من المنتجات من فئات متنوعة. ابحث عن ما تريده بالضبط أو استكشف أحدث المنتجات.';
+
+  @override
+  String get tutorialTitle2 => 'عربة تسوق سهلة وآمنة';
+
+  @override
+  String get tutorialDescription2 =>
+      'أضف منتجاتك المفضلة إلى السلة بنقرة واحدة. استمتع بعملية دفع سلسة وآمنة.';
+
+  @override
+  String get tutorialTitle3 => 'ملف شخصي وطلبات مخصصة';
+
+  @override
+  String get tutorialDescription3 =>
+      'قم بإدارة ملفك الشخصي، وتتبع طلباتك، واحتفظ بقائمة أمنياتك لمنتجاتك المففلة في مكان واحد.';
+
+  @override
+  String get skip => 'تخطي';
+
+  @override
+  String get next => 'التالي';
+
+  @override
+  String get getStarted => 'ابدأ';
+
+  @override
+  String get themeMode => 'وضع السمة';
+
+  @override
+  String get lightMode => 'الوضع الفاتح';
+
+  @override
+  String get chooseAppColor => 'اختر لون التطبيق';
+
+  @override
+  String get welcomeBack => 'مرحباً بعودتك';
+
+  @override
+  String get createNewAccount => 'إنشاء حساب جديد';
+
+  @override
+  String get loginToContinue => 'سجل دخولك للمتابعة';
+
+  @override
+  String get createAccountToAccessFeatures =>
+      'قم بإنشاء حساب للوصول إلى جميع المميزات.';
 }

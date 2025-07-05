@@ -101,7 +101,7 @@ class ProductCard extends StatelessWidget {
                                       : Icons.favorite_border,
                                   color: isInWishlist
                                       ? colorScheme.error
-                                      : colorScheme.outline,
+                                      : Colors.black54,
                                   size: isSmall ? 20 : 24,
                                 ),
                                 onPressed: () => wishlistProvider

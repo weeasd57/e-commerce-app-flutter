@@ -16,6 +16,12 @@ class LanguageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void changeLanguage(Locale newLocale) {
+    _locale = newLocale;
+    _saveLanguage();
+    notifyListeners();
+  }
+
   Future<void> _loadLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     final language = prefs.getString('language') ?? 'en';

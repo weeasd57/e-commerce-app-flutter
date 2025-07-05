@@ -8,6 +8,7 @@ import 'package:ecommerce/pages/color_settings_page.dart';
 import 'package:ecommerce/pages/orders_page.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
+import 'package:ecommerce/providers/language_provider.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -68,7 +69,7 @@ class ProfilePage extends StatelessWidget {
               icon: Icons.person_outline,
               title: localization.changeName,
               onTap: () {
-                // Handle name change
+                _showChangeNameDialog(context, authProvider);
               },
             ),
             _buildProfileOption(
@@ -90,7 +91,7 @@ class ProfilePage extends StatelessWidget {
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.toString())),
+                    SnackBar(content: Text(e as String)),
                   );
                 }
               },
@@ -128,6 +129,14 @@ class ProfilePage extends StatelessWidget {
                     child: const ColorSettingsPage(),
                   ),
                 );
+              },
+            ),
+            _buildProfileOption(
+              context,
+              icon: Icons.language,
+              title: localization.changeLanguage,
+              onTap: () {
+                _showLanguagePickerDialog(context);
               },
             ),
             Consumer<ThemeProvider>(
@@ -175,6 +184,106 @@ class ProfilePage extends StatelessWidget {
       title: Text(title),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
+    );
+  }
+
+  void _showChangeNameDialog(BuildContext context, AuthProvider authProvider) {
+    final TextEditingController nameController =
+        TextEditingController(text: authProvider.user?.displayName ?? '');
+    final localization = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localization.changeName),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: localization.enterNewName,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(localization.cancel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text(localization.save),
+              onPressed: () async {
+                if (nameController.text.trim().isNotEmpty) {
+                  try {
+                    await authProvider
+                        .updateUserName(nameController.text.trim());
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(localization.nameUpdatedSuccessfully)),
+                    );
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    String errorMessage = localization.anUnknownErrorOccurred;
+                    if (e is Exception) {
+                      errorMessage =
+                          authProvider.getLocalizedErrorMessage(e, context);
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(errorMessage)),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(localization.nameCannotBeEmpty)),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLanguagePickerDialog(BuildContext context) {
+    final languageProvider =
+        Provider.of<LanguageProvider>(context, listen: false);
+    final localization = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localization.changeLanguage),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('English'),
+                onTap: () {
+                  languageProvider.setLanguage('en');
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                title: Text('العربية'),
+                onTap: () {
+                  languageProvider.setLanguage('ar');
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(localization.cancel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

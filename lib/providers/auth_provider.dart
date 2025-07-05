@@ -150,4 +150,50 @@ class AuthProvider with ChangeNotifier {
     }
     return localization.anUnknownErrorOccurred;
   }
+
+  String getLocalizedErrorMessage(dynamic e, BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+    if (e is FirebaseAuthException) {
+      switch (e.code) {
+        case 'user-not-found':
+          return localization.userNotFound;
+        case 'wrong-password':
+          return localization.wrongPassword;
+        case 'email-already-in-use':
+          return localization.emailAlreadyInUse;
+        case 'invalid-email':
+          return localization.invalidEmail;
+        case 'weak-password':
+          return localization.weakPassword;
+        case 'operation-not-allowed':
+          return localization.operationNotAllowed;
+        case 'user-disabled':
+          return localization.userDisabled;
+        default:
+          return localization.anUnknownErrorOccurred;
+      }
+    }
+    return localization.anUnknownErrorOccurred;
+  }
+
+  Future<void> updateUserName(String newName) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      if (_user != null) {
+        await _user!.updateDisplayName(newName);
+        await _firestore.collection('users').doc(_user!.uid).update({
+          'name': newName,
+        });
+        _user = _auth.currentUser; // Refresh user data after update
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error updating user name: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

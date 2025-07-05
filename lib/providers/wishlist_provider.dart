@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce/models/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class WishlistProvider with ChangeNotifier {
   final List<String> _wishlistIds = [];
@@ -53,7 +54,9 @@ class WishlistProvider with ChangeNotifier {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isInWishlist ? 'Removed from wishlist' : 'Added to wishlist',
+              isInWishlist
+                  ? AppLocalizations.of(context)!.removedFromWishlist
+                  : AppLocalizations.of(context)!.addedToWishlist,
             ),
             duration: const Duration(seconds: 1),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce/pages/auth/login_page.dart';
 import 'package:ecommerce/pages/auth/register_page.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class AuthPage extends StatefulWidget {
   final bool showLogin;
@@ -33,6 +34,7 @@ class _AuthPageState extends State<AuthPage> {
     final safeAreaPadding = MediaQuery.of(context).padding;
     final availableHeight =
         screenHeight - safeAreaPadding.top - safeAreaPadding.bottom;
+    final localization = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Container(
@@ -54,7 +56,9 @@ class _AuthPageState extends State<AuthPage> {
                   ),
                   SizedBox(height: availableHeight * 0.02),
                   Text(
-                    _showLogin ? 'مرحباً بعودتك' : 'إنشاء حساب جديد',
+                    _showLogin
+                        ? localization.welcomeBack
+                        : localization.createNewAccount,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -64,8 +68,8 @@ class _AuthPageState extends State<AuthPage> {
                   const SizedBox(height: 8),
                   Text(
                     _showLogin
-                        ? 'سجل دخولك للمتابعة'
-                        : 'قم بإنشاء حساب للوصول إلى جميع المميزات',
+                        ? localization.loginToContinue
+                        : localization.createAccountToAccessFeatures,
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 16,

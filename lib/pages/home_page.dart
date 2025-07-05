@@ -187,13 +187,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          final product = productProvider.newProducts[index];
+                          final product = productProvider.products[index];
                           return ProductCard(
                             product: product,
                             isOnSale: product.onSale,
                           );
                         },
-                        childCount: productProvider.newProducts.length,
+                        childCount: productProvider.products.length,
                       ),
                     ),
                   ),

@@ -24,6 +24,7 @@ import 'widgets/gradient_app_bar.dart';
 import 'widgets/gradient_bottom_nav_bar.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ecommerce/pages/landing_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,9 +52,29 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final SharedPreferences prefs;
   const MyApp({super.key, required this.prefs});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isLandingPageSeen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLandingPageStatus();
+  }
+
+  Future<void> _loadLandingPageStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isLandingPageSeen = prefs.getBool('landingPageSeen') ?? false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +90,7 @@ class MyApp extends StatelessWidget {
           scrollBehavior: const MaterialScrollBehavior().copyWith(
             dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
           ),
-          title: 'ecommerce',
+          title: 'elkoshk',
           theme: AppThemes.getTheme(
             isDark: false,
             primaryColor: primaryColor,
@@ -89,15 +110,17 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) async {
-              if (didPop) {
-                await ExitDialog.show(context);
-              }
-            },
-            child: const Home(),
-          ),
+          home: _isLandingPageSeen
+              ? PopScope(
+                  canPop: false,
+                  onPopInvokedWithResult: (didPop, result) async {
+                    if (didPop) {
+                      await ExitDialog.show(context);
+                    }
+                  },
+                  child: const Home(),
+                )
+              : const LandingPage(),
         );
       },
     );
@@ -109,6 +132,8 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+
     return Consumer2<ColorProvider, NavigationProvider>(
       builder: (context, colorProvider, navigationProvider, _) {
         final selectedColor = colorProvider.selectedColorOption;
@@ -118,23 +143,24 @@ class Home extends StatelessWidget {
         if (isGradient) {
           appBar = GradientAppBar(
             colors: selectedColor!.gradientColors!,
-            title: Text(navigationProvider.currentPageTitle),
+            title: Text(navigationProvider.currentPageTitle(localization)),
           );
         } else {
-          appBar = AppBar(title: Text(navigationProvider.currentPageTitle));
+          appBar = AppBar(
+              title: Text(navigationProvider.currentPageTitle(localization)));
         }
 
         Widget bottomNav;
         if (isGradient) {
           bottomNav = GradientBottomNavBar(
             colors: selectedColor!.gradientColors!,
-            items: navigationProvider.navigationItems,
+            items: navigationProvider.getNavigationItems(localization),
             currentIndex: navigationProvider.currentIndex,
             onTap: navigationProvider.setPage,
           );
         } else {
           bottomNav = BottomNavigationBar(
-            items: navigationProvider.navigationItems,
+            items: navigationProvider.getNavigationItems(localization),
             currentIndex: navigationProvider.currentIndex,
             onTap: navigationProvider.setPage,
             type: BottomNavigationBarType.fixed,
