@@ -109,7 +109,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmOrder => 'تأكيد الطلب';
 
   @override
-  String get categories => 'التصنيفات';
+  String get categories => 'فئات';
 
   @override
   String get home => 'الرئيسية';
@@ -118,7 +118,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cart => 'السلة';
 
   @override
-  String get profile => 'حسابي';
+  String get profile => 'الملف الشخصي';
 
   @override
   String get changeLanguage => 'تغيير اللغة';
@@ -144,7 +144,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nameCannotBeEmpty => 'لا يمكن أن يكون الاسم فارغًا.';
 
   @override
-  String get itemAddedToCart => 'تمت الإضافة إلى السلة.';
+  String itemAddedToCart(Object name) {
+    return 'تم إضافة $name إلى السلة';
+  }
 
   @override
   String get addedToWishlist => 'تمت الإضافة إلى المفضلة.';
@@ -183,7 +185,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tutorialDescription3 =>
-      'قم بإدارة ملفك الشخصي، وتتبع طلباتك، واحتفظ بقائمة أمنياتك لمنتجاتك المففلة في مكان واحد.';
+      'قم بإدارة ملفك الشخصي، وتتبع طلباتك، واحتفظ بقائمة أمنياتك لمنتجاتك المفضلة في مكان واحد.';
 
   @override
   String get skip => 'تخطي';
@@ -215,4 +217,139 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get createAccountToAccessFeatures =>
       'قم بإنشاء حساب للوصول إلى جميع المميزات.';
+
+  @override
+  String get noProductsInCategory => 'لا توجد منتجات في هذا القسم';
+
+  @override
+  String get noOrders => 'لا توجد طلبات بعد.';
+
+  @override
+  String orderNumber(Object id) {
+    return 'طلب رقم: $id';
+  }
+
+  @override
+  String get pending => 'قيد الانتظار';
+
+  @override
+  String get processing => 'قيد المعالجة';
+
+  @override
+  String get shipped => 'تم الشحن';
+
+  @override
+  String get delivered => 'تم التوصيل';
+
+  @override
+  String get cancelled => 'تم الإلغاء';
+
+  @override
+  String orderTotal(Object currency, Object total) {
+    return 'المجموع: $total $currency';
+  }
+
+  @override
+  String get allProducts => 'جميع المنتجات';
+
+  @override
+  String get filters => 'تصفية';
+
+  @override
+  String get sortBy => 'ترتيب حسب';
+
+  @override
+  String get priceHighToLow => 'السعر: من الأعلى إلى الأقل';
+
+  @override
+  String get priceLowToHigh => 'السعر: من الأقل إلى الأعلى';
+
+  @override
+  String get newest => 'الأحدث';
+
+  @override
+  String get onSale => 'خصم';
+
+  @override
+  String get hotItems => 'عناصر رائجة';
+
+  @override
+  String get newArrivals => 'وصل حديثاً';
+
+  @override
+  String get clearFilters => 'مسح التصفية';
+
+  @override
+  String get apply => 'تطبيق';
+
+  @override
+  String get search => 'بحث';
+
+  @override
+  String get popularSearches => 'عمليات البحث الشائعة';
+
+  @override
+  String noResultsFound(Object searchQuery) {
+    return 'لا توجد نتائج بحث لـ \"$searchQuery\"';
+  }
+
+  @override
+  String get sale => 'خصم';
+
+  @override
+  String get age => 'العمر';
+
+  @override
+  String get quantity => 'الكمية';
+
+  @override
+  String get addToCart => 'إضافة إلى السلة';
+
+  @override
+  String get deleteConfirmation => 'تأكيد الحذف';
+
+  @override
+  String get confirmDeleteOrder => 'هل أنت متأكد من حذف هذا الطلب؟';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get orderDeletedSuccess => 'تم حذف الطلب بنجاح';
+
+  @override
+  String get orderDeleteFailed => 'فشل حذف الطلب';
+
+  @override
+  String get undo => 'تراجع';
+
+  @override
+  String get orderConfirmedSuccess => 'تم تأكيد الطلب بنجاح';
+
+  @override
+  String get orderConfirmationFailed => 'حدث خطأ. الرجاء المحاولة مرة أخرى';
+
+  @override
+  String get orderInformation => 'معلومات الطلب';
+
+  @override
+  String get phone => 'رقم الهاتف';
+
+  @override
+  String get pleaseEnterPhoneNumber => 'الرجاء إدخال رقم هاتفك';
+
+  @override
+  String get deliveryAddress => 'عنوان التوصيل';
+
+  @override
+  String get pleaseEnterDeliveryAddress => 'الرجاء إدخال عنوان التوصيل';
+
+  @override
+  String get confirmExitTitle => 'تأكيد الخروج';
+
+  @override
+  String get confirmExitContent => 'هل أنت متأكد أنك تريد الخروج من التطبيق؟';
+
+  @override
+  String get exit => 'خروج';
 }

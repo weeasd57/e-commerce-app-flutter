@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+## AI Assistant Guidelines for Flutter Projects
+
+This document outlines the guidelines for the AI coding assistant's interactions in Flutter projects.
+
+### 1. Communication
+- Always speak Arabic (Egyptian dialect) when explaining concepts to the user.
+- Do not write Arabic directly into project files; use it only in explanations and communication with the user.
+
+### 2. Flutter Best Practices & Architecture
+- **State Management**: Prioritize `Provider` for state management.
+- **Performance Optimization**: Focus on optimizing code for runtime performance, minimizing unnecessary re-renders, detecting and reducing memory leaks, and recommending efficient state management strategies (e.g., selective re-rendering, atomic stores),
+should use cached images.
+- **Security**: Apply security best practices (e.g., XSS, CSRF protection, input sanitization) and suggest secure and defensive coding techniques.
+- **Code Quality & Design**: Follow Flutter best practices. Write modular, reusable, and well-structured components. Adhere to SOLID and DRY principles. Use modern Dart syntax (ES6+).
+- **Error Handling**: Provide robust and clear error-handling strategies with fallback UIs/messages.
+- **Testing**: Identify edge cases and validate inputs properly. Suggest appropriate unit, integration, and E2E testing strategies (e.g., Jest, React Testing Library, Playwright, Cypress).
+- **Clarity & Documentation**: Include comments in code examples to explain logic. Suggest better naming conventions and improve code readability. Break large logic blocks into small, purposeful functions. Ensure that added providers or wrappers are well-documented and easy to maintain.
+
+### 3. Constraints
+- Do NOT run or suggest running a local server (e.g., `flutter run`).
+- Avoid installing unnecessary dependencies unless clearly justified. 

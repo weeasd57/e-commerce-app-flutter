@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/auth_provider.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:ecommerce/providers/currency_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -28,6 +31,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+    final currencyProvider = Provider.of<CurrencyProvider>(context);
+
     return Consumer3<CartProvider, AuthProvider, NavigationProvider>(
       builder: (context, cartProvider, authProvider, navigationProvider, _) {
         if (!authProvider.isLoggedIn) {
@@ -41,7 +47,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         if (cartProvider.items.isEmpty) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('سلة التسوق'),
+              title: Text(localization.cart),
               centerTitle: true,
             ),
             body: Center(
@@ -55,7 +61,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'السلة فارغة',
+                    localization.yourCartIsEmpty,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.grey.shade600,
                         ),
@@ -68,7 +74,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('سلة التسوق'),
+            title: Text(localization.cart),
             centerTitle: true,
           ),
           body: SingleChildScrollView(
@@ -87,14 +93,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         vertical: 8,
                       ),
                       child: ListTile(
-                        leading: Image.network(
-                          item.imageUrl,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: CachedNetworkImage(
+                            imageUrl: item.imageUrl,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).primaryColor),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              width: 50,
+                              height: 50,
+                              color: Colors.grey[300],
+                              child: Icon(Icons.image_not_supported,
+                                  color: Colors.grey[600]),
+                            ),
+                          ),
                         ),
                         title: Text(item.name),
-                        subtitle: Text('${item.price} ريال'),
+                        subtitle: Text(
+                            '${item.price} ${currencyProvider.currencyCode}'),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -139,14 +162,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'معلومات الطلب',
+                          localization.orderInformation,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _nameController,
                           decoration: InputDecoration(
-                            labelText: 'الاسم',
+                            labelText: localization.name,
                             prefixIcon: const Icon(Icons.person_outline),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -154,7 +177,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال الاسم';
+                              return localization.pleaseEnterName;
                             }
                             return null;
                           },
@@ -163,7 +186,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         TextFormField(
                           controller: _phoneController,
                           decoration: InputDecoration(
-                            labelText: 'رقم الهاتف',
+                            labelText: localization.phone,
                             prefixIcon: const Icon(Icons.phone_outlined),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -172,7 +195,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           keyboardType: TextInputType.phone,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال رقم الهاتف';
+                              return localization.pleaseEnterPhoneNumber;
                             }
 
                             return null;
@@ -182,7 +205,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         TextFormField(
                           controller: _addressController,
                           decoration: InputDecoration(
-                            labelText: 'عنوان التوصيل',
+                            labelText: localization.deliveryAddress,
                             prefixIcon: const Icon(Icons.location_on_outlined),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -191,7 +214,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           maxLines: 3,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال عنوان التوصيل';
+                              return localization.pleaseEnterDeliveryAddress;
                             }
                             return null;
                           },
@@ -200,9 +223,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('المجموع:'),
+                            Text(localization.total),
                             Text(
-                              '${cartProvider.total} ريال',
+                              '${cartProvider.total} ${currencyProvider.currencyCode}',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ],
@@ -248,9 +271,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         Colors.white),
                                   ),
                                 )
-                              : const Text(
-                                  'تأكيد الطلب',
-                                  style: TextStyle(color: Colors.white),
+                              : Text(
+                                  localization.confirmOrder,
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                         ),
                       ],

@@ -9,6 +9,8 @@ import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +20,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _isFilterExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +34,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final currencyProvider = context.watch<CurrencyProvider>();
+    final localization = AppLocalizations.of(context)!;
+    Provider.of<ProductProvider>(context);
 
     return Center(
       child: Container(
@@ -83,8 +89,9 @@ class _HomePageState extends State<HomePage> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(15),
                                       image: DecorationImage(
-                                        image: NetworkImage(
-                                            product.imageUrls.first),
+                                        image: CachedNetworkImageProvider(
+                                          product.imageUrls.first,
+                                        ),
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -133,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            'Categories',
+                            localization.categories,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 16),
@@ -172,6 +179,30 @@ class _HomePageState extends State<HomePage> {
                               );
                             },
                           ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                localization.allProducts,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              TextButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _isFilterExpanded = !_isFilterExpanded;
+                                  });
+                                },
+                                icon: Icon(_isFilterExpanded
+                                    ? Icons.filter_list_off
+                                    : Icons.filter_list),
+                                label: Text(localization.filters),
+                              ),
+                            ],
+                          ),
+                          if (_isFilterExpanded)
+                            _buildFilterSection(
+                                context, localization, productProvider),
                         ],
                       ),
                     ),
@@ -202,6 +233,115 @@ class _HomePageState extends State<HomePage> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSection(BuildContext context,
+      AppLocalizations localization, ProductProvider productProvider) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            localization.filters,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const Divider(),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilterChip(
+                label: Text(localization.onSale),
+                selected: productProvider.showOnSale,
+                onSelected: (selected) {
+                  productProvider.setShowOnSale(selected);
+                },
+              ),
+              FilterChip(
+                label: Text(localization.hotItems),
+                selected: productProvider.showHotItems,
+                onSelected: (selected) {
+                  productProvider.setShowHotItems(selected);
+                },
+              ),
+              FilterChip(
+                label: Text(localization.newArrivals),
+                selected: productProvider.showNewArrivals,
+                onSelected: (selected) {
+                  productProvider.setShowNewArrivals(selected);
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            localization.sortBy,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const Divider(),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ChoiceChip(
+                label: Text(localization.newest),
+                selected: productProvider.sortOption == SortOption.newest,
+                onSelected: (selected) {
+                  if (selected) {
+                    productProvider.setSortOption(SortOption.newest);
+                  }
+                },
+              ),
+              ChoiceChip(
+                label: Text(localization.priceHighToLow),
+                selected:
+                    productProvider.sortOption == SortOption.priceHighToLow,
+                onSelected: (selected) {
+                  if (selected) {
+                    productProvider.setSortOption(SortOption.priceHighToLow);
+                  }
+                },
+              ),
+              ChoiceChip(
+                label: Text(localization.priceLowToHigh),
+                selected:
+                    productProvider.sortOption == SortOption.priceLowToHigh,
+                onSelected: (selected) {
+                  if (selected) {
+                    productProvider.setSortOption(SortOption.priceLowToHigh);
+                  }
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  productProvider.clearFilters();
+                },
+                child: Text(localization.clearFilters),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

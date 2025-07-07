@@ -4,6 +4,7 @@ import 'package:ecommerce/models/category.dart';
 import 'package:ecommerce/providers/product_provider.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class CategoryProductsPage extends StatelessWidget {
   final Category category;
@@ -15,6 +16,8 @@ class CategoryProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(category.name),
@@ -32,8 +35,8 @@ class CategoryProductsPage extends StatelessWidget {
                   .toList();
 
               if (categoryProducts.isEmpty) {
-                return const Center(
-                  child: Text('لا توجد منتجات في هذا القسم'),
+                return Center(
+                  child: Text(localization.noProductsInCategory),
                 );
               }
 

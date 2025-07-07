@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce/models/category.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoryCard extends StatelessWidget {
   final Category category;
@@ -30,9 +31,20 @@ class CategoryCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(10)),
-                  child: Image.network(
-                    category.imageUrl!,
+                  child: CachedNetworkImage(
+                    imageUrl: category.imageUrl!,
                     fit: BoxFit.cover,
+                    placeholder: (context, url) => Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[300],
+                      child: Icon(Icons.image_not_supported,
+                          color: Colors.grey[600]),
+                    ),
                   ),
                 ),
               )

@@ -50,7 +50,8 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> addToCart(Product product, BuildContext context) async {
+  Future<bool> addToCart(
+      Product product, int quantity, BuildContext context) async {
     final authProvider = context.read<AuthProvider>();
     final navigationProvider = context.read<NavigationProvider>();
 
@@ -94,26 +95,28 @@ class CartProvider with ChangeNotifier {
       return false;
     }
 
-    return await _addProductToCart(product, context);
+    return await _addProductToCart(product, quantity, context);
   }
 
-  Future<bool> _addProductToCart(Product product, BuildContext context) async {
+  Future<bool> _addProductToCart(
+      Product product, int quantity, BuildContext context) async {
     try {
-      final existingItem = _items.firstWhere(
-        (item) => item.productId == product.id,
-        orElse: () => CartItem(
-          id: DateTime.now().toString(),
-          productId: product.id,
-          name: product.name,
-          price: product.onSale ? product.salePrice! : product.price,
-          imageUrl: product.imageUrls.first,
-        ),
-      );
+      final existingItemIndex =
+          _items.indexWhere((item) => item.productId == product.id);
 
-      if (_items.contains(existingItem)) {
-        existingItem.quantity++;
+      if (existingItemIndex != -1) {
+        _items[existingItemIndex].quantity += quantity;
       } else {
-        _items.add(existingItem);
+        _items.add(
+          CartItem(
+            id: DateTime.now().toString(),
+            productId: product.id,
+            name: product.name,
+            price: product.onSale ? product.salePrice! : product.price,
+            imageUrl: product.imageUrls.first,
+            quantity: quantity,
+          ),
+        );
       }
       notifyListeners();
 
@@ -122,7 +125,8 @@ class CartProvider with ChangeNotifier {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.itemAddedToCart),
+            content: Text(
+                AppLocalizations.of(context)!.itemAddedToCart(product.name)),
             duration: const Duration(seconds: 1),
           ),
         );
@@ -137,17 +141,20 @@ class CartProvider with ChangeNotifier {
   Future<void> removeFromCart(String cartItemId) async {
     _items.removeWhere((item) => item.id == cartItemId);
     notifyListeners();
+    await _saveCart();
   }
 
   Future<void> updateQuantity(String cartItemId, int quantity) async {
     final item = _items.firstWhere((item) => item.id == cartItemId);
     item.quantity = quantity;
     notifyListeners();
+    await _saveCart();
   }
 
   Future<void> clearCart() async {
     _items.clear();
     notifyListeners();
+    await _saveCart();
   }
 
   Future<void> loadCart(String userId) async {
@@ -192,6 +199,8 @@ class CartProvider with ChangeNotifier {
     required String address,
   }) async {
     final authProvider = context.read<AuthProvider>();
+    final localization = AppLocalizations.of(context)!;
+
     if (!authProvider.isLoggedIn) {
       Navigator.of(context).push(
         CustomPageRoute(child: const AuthPage()),
@@ -215,12 +224,18 @@ class CartProvider with ChangeNotifier {
       await clearCart();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تأكيد الطلب بنجاح')),
+        SnackBar(
+          content: Text(localization.orderConfirmedSuccess),
+          backgroundColor: Colors.green,
+        ),
       );
     } catch (e) {
       debugPrint('Error placing order: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('حدث خطأ. الرجاء المحاولة مرة أخرى')),
+        SnackBar(
+          content: Text(localization.orderConfirmationFailed),
+          backgroundColor: Colors.red,
+        ),
       );
       rethrow;
     }
@@ -228,7 +243,7 @@ class CartProvider with ChangeNotifier {
 
   void onLoginComplete(BuildContext context) {
     if (_pendingProduct != null) {
-      _addProductToCart(_pendingProduct!, context);
+      _addProductToCart(_pendingProduct!, 1, context);
       _pendingProduct = null;
     }
   }

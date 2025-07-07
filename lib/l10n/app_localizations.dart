@@ -365,8 +365,8 @@ abstract class AppLocalizations {
   /// No description provided for @itemAddedToCart.
   ///
   /// In en, this message translates to:
-  /// **'Item added to cart!'**
-  String get itemAddedToCart;
+  /// **'Item {name} added to cart'**
+  String itemAddedToCart(Object name);
 
   /// No description provided for @addedToWishlist.
   ///
@@ -499,6 +499,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create an account to access all features.'**
   String get createAccountToAccessFeatures;
+
+  /// No description provided for @noProductsInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No products in this category'**
+  String get noProductsInCategory;
+
+  /// No description provided for @noOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet.'**
+  String get noOrders;
+
+  /// No description provided for @orderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #: {id}'**
+  String orderNumber(Object id);
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get processing;
+
+  /// No description provided for @shipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get shipped;
+
+  /// No description provided for @delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get delivered;
+
+  /// No description provided for @cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get cancelled;
+
+  /// No description provided for @orderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {total} {currency}'**
+  String orderTotal(Object currency, Object total);
+
+  /// No description provided for @allProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'All Products'**
+  String get allProducts;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort By'**
+  String get sortBy;
+
+  /// No description provided for @priceHighToLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: High to Low'**
+  String get priceHighToLow;
+
+  /// No description provided for @priceLowToHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: Low to High'**
+  String get priceLowToHigh;
+
+  /// No description provided for @newest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get newest;
+
+  /// No description provided for @onSale.
+  ///
+  /// In en, this message translates to:
+  /// **'On Sale'**
+  String get onSale;
+
+  /// No description provided for @hotItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Items'**
+  String get hotItems;
+
+  /// No description provided for @newArrivals.
+  ///
+  /// In en, this message translates to:
+  /// **'New Arrivals'**
+  String get newArrivals;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Filters'**
+  String get clearFilters;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @popularSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Searches'**
+  String get popularSearches;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found for \"{searchQuery}\"'**
+  String noResultsFound(Object searchQuery);
+
+  /// No description provided for @sale.
+  ///
+  /// In en, this message translates to:
+  /// **'SALE'**
+  String get sale;
+
+  /// No description provided for @age.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get age;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
+
+  /// No description provided for @addToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Cart'**
+  String get addToCart;
+
+  /// No description provided for @deleteConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Confirmation'**
+  String get deleteConfirmation;
+
+  /// No description provided for @confirmDeleteOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this order?'**
+  String get confirmDeleteOrder;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @orderDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Order deleted successfully'**
+  String get orderDeletedSuccess;
+
+  /// No description provided for @orderDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete order'**
+  String get orderDeleteFailed;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @orderConfirmedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Order confirmed successfully'**
+  String get orderConfirmedSuccess;
+
+  /// No description provided for @orderConfirmationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Error occurred. Please try again'**
+  String get orderConfirmationFailed;
+
+  /// No description provided for @orderInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Information'**
+  String get orderInformation;
+
+  /// No description provided for @phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phone;
+
+  /// No description provided for @pleaseEnterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number'**
+  String get pleaseEnterPhoneNumber;
+
+  /// No description provided for @deliveryAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Address'**
+  String get deliveryAddress;
+
+  /// No description provided for @pleaseEnterDeliveryAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your delivery address'**
+  String get pleaseEnterDeliveryAddress;
+
+  /// No description provided for @confirmExitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Exit'**
+  String get confirmExitTitle;
+
+  /// No description provided for @confirmExitContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to exit the app?'**
+  String get confirmExitContent;
+
+  /// No description provided for @exit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exit;
 }
 
 class _AppLocalizationsDelegate

@@ -25,6 +25,9 @@ import 'widgets/gradient_bottom_nav_bar.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ecommerce/pages/landing_page.dart';
+import 'package:ecommerce/pages/search_page.dart';
+import 'package:ecommerce/utils/custom_page_route.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -114,8 +117,9 @@ class _MyAppState extends State<MyApp> {
               ? PopScope(
                   canPop: false,
                   onPopInvokedWithResult: (didPop, result) async {
-                    if (didPop) {
-                      await ExitDialog.show(context);
+                    final shouldExit = await ExitDialog.show(context);
+                    if (shouldExit == true) {
+                      SystemNavigator.pop();
                     }
                   },
                   child: const Home(),
@@ -144,10 +148,29 @@ class Home extends StatelessWidget {
           appBar = GradientAppBar(
             colors: selectedColor!.gradientColors!,
             title: Text(navigationProvider.currentPageTitle(localization)),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  Navigator.push(
+                      context, CustomPageRoute(child: const SearchPage()));
+                },
+              ),
+            ],
           );
         } else {
           appBar = AppBar(
-              title: Text(navigationProvider.currentPageTitle(localization)));
+            title: Text(navigationProvider.currentPageTitle(localization)),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  Navigator.push(
+                      context, CustomPageRoute(child: const SearchPage()));
+                },
+              ),
+            ],
+          );
         }
 
         Widget bottomNav;
@@ -177,11 +200,12 @@ class Home extends StatelessWidget {
   }
 }
 
-class SearchPage extends StatelessWidget {
-  const SearchPage({Key? key}) : super(key: key);
+// The SearchPage class will be in lib/pages/search_page.dart
+// class SearchPage extends StatelessWidget {
+//   const SearchPage({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Search Page'));
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Center(child: Text('Search Page'));
+//   }
+// }

@@ -145,7 +145,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nameCannotBeEmpty => 'Name cannot be empty.';
 
   @override
-  String get itemAddedToCart => 'Item added to cart!';
+  String itemAddedToCart(Object name) {
+    return 'Item $name added to cart';
+  }
 
   @override
   String get addedToWishlist => 'Added to wishlist';
@@ -217,4 +219,140 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get createAccountToAccessFeatures =>
       'Create an account to access all features.';
+
+  @override
+  String get noProductsInCategory => 'No products in this category';
+
+  @override
+  String get noOrders => 'No orders yet.';
+
+  @override
+  String orderNumber(Object id) {
+    return 'Order #: $id';
+  }
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get processing => 'Processing';
+
+  @override
+  String get shipped => 'Shipped';
+
+  @override
+  String get delivered => 'Delivered';
+
+  @override
+  String get cancelled => 'Cancelled';
+
+  @override
+  String orderTotal(Object currency, Object total) {
+    return 'Total: $total $currency';
+  }
+
+  @override
+  String get allProducts => 'All Products';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get sortBy => 'Sort By';
+
+  @override
+  String get priceHighToLow => 'Price: High to Low';
+
+  @override
+  String get priceLowToHigh => 'Price: Low to High';
+
+  @override
+  String get newest => 'Newest';
+
+  @override
+  String get onSale => 'On Sale';
+
+  @override
+  String get hotItems => 'Hot Items';
+
+  @override
+  String get newArrivals => 'New Arrivals';
+
+  @override
+  String get clearFilters => 'Clear Filters';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get popularSearches => 'Popular Searches';
+
+  @override
+  String noResultsFound(Object searchQuery) {
+    return 'No results found for \"$searchQuery\"';
+  }
+
+  @override
+  String get sale => 'SALE';
+
+  @override
+  String get age => 'Age';
+
+  @override
+  String get quantity => 'Quantity';
+
+  @override
+  String get addToCart => 'Add to Cart';
+
+  @override
+  String get deleteConfirmation => 'Delete Confirmation';
+
+  @override
+  String get confirmDeleteOrder =>
+      'Are you sure you want to delete this order?';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get orderDeletedSuccess => 'Order deleted successfully';
+
+  @override
+  String get orderDeleteFailed => 'Failed to delete order';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get orderConfirmedSuccess => 'Order confirmed successfully';
+
+  @override
+  String get orderConfirmationFailed => 'Error occurred. Please try again';
+
+  @override
+  String get orderInformation => 'Order Information';
+
+  @override
+  String get phone => 'Phone Number';
+
+  @override
+  String get pleaseEnterPhoneNumber => 'Please enter your phone number';
+
+  @override
+  String get deliveryAddress => 'Delivery Address';
+
+  @override
+  String get pleaseEnterDeliveryAddress => 'Please enter your delivery address';
+
+  @override
+  String get confirmExitTitle => 'Confirm Exit';
+
+  @override
+  String get confirmExitContent => 'Are you sure you want to exit the app?';
+
+  @override
+  String get exit => 'Exit';
 }

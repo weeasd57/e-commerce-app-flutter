@@ -6,6 +6,7 @@ import 'package:ecommerce/pages/checkout_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -53,33 +54,57 @@ class CartPage extends StatelessWidget {
                           onDismissed: (_) {
                             cartProvider.removeFromCart(item.id);
                           },
-                          child: ListTile(
-                            leading: Image.network(
-                              item.imageUrl,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
+                          child: Card(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
-                            title: Text(item.name),
-                            subtitle: Text(
-                                '${item.price} ${currencyProvider.currencyCode}'),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: item.quantity > 1
-                                      ? () => cartProvider.updateQuantity(
-                                          item.id, item.quantity - 1)
-                                      : null,
+                            child: ListTile(
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: CachedNetworkImage(
+                                  imageUrl: item.imageUrl,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Theme.of(context).primaryColor),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                    width: 50,
+                                    height: 50,
+                                    color: Colors.grey[300],
+                                    child: Icon(Icons.image_not_supported,
+                                        color: Colors.grey[600]),
+                                  ),
                                 ),
-                                Text('${item.quantity}'),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () => cartProvider.updateQuantity(
-                                      item.id, item.quantity + 1),
-                                ),
-                              ],
+                              ),
+                              title: Text(item.name),
+                              subtitle: Text(
+                                  '${item.price} ${currencyProvider.currencyCode}'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove),
+                                    onPressed: item.quantity > 1
+                                        ? () => cartProvider.updateQuantity(
+                                            item.id, item.quantity - 1)
+                                        : null,
+                                  ),
+                                  Text('${item.quantity}'),
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    onPressed: () =>
+                                        cartProvider.updateQuantity(
+                                            item.id, item.quantity + 1),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );

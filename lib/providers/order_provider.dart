@@ -28,7 +28,10 @@ class OrderProvider with ChangeNotifier {
           .get();
 
       _orders = snapshot.docs.map((doc) {
-        return ord.Order.fromMap(doc.data());
+        // Add document ID to the order data
+        final data = doc.data();
+        data['id'] = doc.id;
+        return ord.Order.fromMap(data);
       }).toList();
     } catch (error) {
       // Handle error appropriately in a real app
@@ -36,6 +39,42 @@ class OrderProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> deleteOrder(String orderId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      // Find the document with this order ID
+      final orderQuery = await _firestore
+          .collection('orders')
+          .where('id', isEqualTo: orderId)
+          .get();
+
+      // If we found the document, delete it
+      if (orderQuery.docs.isNotEmpty) {
+        await _firestore
+            .collection('orders')
+            .doc(orderQuery.docs.first.id)
+            .delete();
+      } else {
+        // Try to delete by document ID directly
+        await _firestore.collection('orders').doc(orderId).delete();
+      }
+
+      // Remove the order from the local list
+      _orders.removeWhere((order) => order.id == orderId);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      print('Error deleting order: $error');
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 }

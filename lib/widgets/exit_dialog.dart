@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class ExitDialog extends StatelessWidget {
   const ExitDialog({super.key});
@@ -12,22 +13,23 @@ class ExitDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('تأكيد الخروج'),
-      content: const Text('هل تريد الخروج من التطبيق؟'),
+      title: Text(localization.confirmExitTitle),
+      content: Text(localization.confirmExitContent),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('إلغاء'),
+          child: Text(localization.cancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, true),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
           ),
-          child: const Text(
-            'خروج',
-            style: TextStyle(color: Colors.white),
+          child: Text(
+            localization.exit,
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       ],

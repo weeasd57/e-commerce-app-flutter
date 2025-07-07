@@ -31,8 +31,21 @@
 
   <title>elkoshk</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Load our fix script before Flutter initialization -->
+  <script src="fix_context_error.js"></script>
+
+  <!-- Error handling script -->
+  <script>
+    // Add global error handler to catch and log JavaScript errors
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error("Error caught by global handler:", message, "at", source, ":", lineno, ":", colno);
+      return false;
+    };
+  </script>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- Load our custom bootstrap script -->
+  <script src="flutter_bootstrap.js" defer></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ class Product {
   final bool onSale;
   final double? salePrice;
   final DateTime createdAt;
+  final String? age;
 
   Product({
     required this.id,
@@ -23,6 +24,7 @@ class Product {
     this.onSale = false,
     this.salePrice,
     required this.createdAt,
+    this.age,
   });
 
   factory Product.fromMap(Map<String, dynamic> map) {
@@ -40,6 +42,7 @@ class Product {
           ? (map['salePrice'] as num).toDouble()
           : null,
       createdAt: DateTime.parse(map['createdAt'] as String),
+      age: map['age'] as String?,
     );
   }
 
@@ -56,6 +59,7 @@ class Product {
       'onSale': onSale,
       'salePrice': salePrice,
       'createdAt': createdAt.toIso8601String(),
+      'age': age,
     };
   }
 
@@ -71,6 +75,7 @@ class Product {
     bool? onSale,
     double? salePrice,
     DateTime? createdAt,
+    String? age,
   }) {
     return Product(
       id: id ?? this.id,
@@ -84,6 +89,7 @@ class Product {
       onSale: onSale ?? this.onSale,
       salePrice: salePrice ?? this.salePrice,
       createdAt: createdAt ?? this.createdAt,
+      age: age ?? this.age,
     );
   }
 }

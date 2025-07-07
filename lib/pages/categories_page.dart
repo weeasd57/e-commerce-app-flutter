@@ -4,6 +4,7 @@ import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -18,7 +19,7 @@ class CategoriesPage extends StatelessWidget {
           ),
           padding: Responsive.scaffoldPadding(context),
           child: Consumer<CategoryProvider>(
-            builder: (context, categoryProvider, _) {
+            builder: (context, categoryProvider, child) {
               if (categoryProvider.isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -51,9 +52,27 @@ class CategoriesPage extends StatelessWidget {
                         fit: StackFit.expand,
                         children: [
                           if (category.imageUrl != null)
-                            Image.network(
-                              category.imageUrl!,
+                            CachedNetworkImage(
+                              imageUrl: category.imageUrl!,
                               fit: BoxFit.cover,
+                              placeholder: (context, url) => Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).primaryColor),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) {
+                                return Container(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.1),
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    size: 50,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                );
+                              },
                             )
                           else
                             Container(

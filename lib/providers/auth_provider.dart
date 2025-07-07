@@ -18,6 +18,7 @@ class AuthProvider with ChangeNotifier {
   bool get isLoggedIn => _user != null;
 
   AuthProvider() {
+    _user = _auth.currentUser; // Initialize with current user status
     _authStateSubscription = _auth.authStateChanges().listen((user) {
       _user = user;
       notifyListeners();
