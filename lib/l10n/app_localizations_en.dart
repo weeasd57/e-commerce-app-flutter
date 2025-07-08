@@ -107,6 +107,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get total => 'Total';
 
   @override
+  String get totalAmount => 'Total Amount';
+
+  @override
+  String get deliveryCost => 'Delivery Cost';
+
+  @override
+  String get grandTotal => 'Grand Total';
+
+  @override
   String get confirmOrder => 'Confirm Order';
 
   @override

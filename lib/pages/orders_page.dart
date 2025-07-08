@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/order_provider.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
+import 'package:intl/intl.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key}) : super(key: key);
@@ -200,7 +201,76 @@ class _OrdersPageState extends State<OrdersPage> {
                                 style: const TextStyle(fontSize: 14)),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
+                        // New: Display Total Amount
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              localization.totalAmount,
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              NumberFormat.currency(
+                                locale: localization.localeName,
+                                symbol: currencyProvider.currencyCode,
+                                decimalDigits: 2,
+                              ).format(order.total),
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        // New: Display Delivery Cost
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              localization
+                                  .deliveryCost, // Assuming you have this string in your localization files
+                              style: TextStyle(
+                                  fontSize: 15, color: Colors.grey[700]),
+                            ),
+                            Text(
+                              NumberFormat.currency(
+                                locale: localization.localeName,
+                                symbol: currencyProvider.currencyCode,
+                                decimalDigits: 2,
+                              ).format(currencyProvider.deliveryCost),
+                              style: TextStyle(
+                                  fontSize: 15, color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
+                        // New: Display Grand Total
+                        const Divider(), // A visual separator
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              localization
+                                  .grandTotal, // Assuming you have this string in your localization files
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepPurple),
+                            ),
+                            Text(
+                              NumberFormat.currency(
+                                locale: localization.localeName,
+                                symbol: currencyProvider.currencyCode,
+                                decimalDigits: 2,
+                              ).format(
+                                  order.total + currencyProvider.deliveryCost),
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepPurple),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
                         Row(
                           children: [
                             Icon(Icons.location_on,
