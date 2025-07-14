@@ -1,6 +1,5 @@
 import 'package:ecommerce/pages/auth/auth_page.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce/models/cart_item.dart';
 import 'package:ecommerce/models/product.dart';
 import 'package:ecommerce/providers/auth_provider.dart';
@@ -10,9 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
+import 'package:ecommerce/services/supabase_service.dart'; // Import SupabaseService
 
 class CartProvider with ChangeNotifier {
-  final _db = FirebaseFirestore.instance;
+  final SupabaseClient _db = SupabaseService.client; // Use Supabase client
   final List<CartItem> _items = [];
   bool _isLoading = false;
   static const String _cartKey = 'cart_items';
@@ -157,15 +158,18 @@ class CartProvider with ChangeNotifier {
     await _saveCart();
   }
 
-  Future<void> loadCart(String userId) async {
+  Future<void> loadCartFromSupabase(String userId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final doc = await _db.collection('carts').doc(userId).get();
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-        final items = (data['items'] as List)
+      final List<Map<String, dynamic>> cartData = await _db
+          .from('carts')
+          .select()
+          .eq('userId', userId);
+
+      if (cartData.isNotEmpty) {
+        final items = (cartData.first['items'] as List)
             .map((item) => CartItem.fromMap(item as Map<String, dynamic>))
             .toList();
         _items
@@ -173,7 +177,7 @@ class CartProvider with ChangeNotifier {
           ..addAll(items);
       }
     } catch (e) {
-      debugPrint('Error loading cart: $e');
+      debugPrint('Error loading cart from Supabase: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -217,10 +221,10 @@ class CartProvider with ChangeNotifier {
         'name': name,
         'phone': phone,
         'address': address,
-        'createdAt': FieldValue.serverTimestamp(),
+        'createdAt': DateTime.now().toIso8601String(), // Use ISO 8601 string for Supabase
       };
 
-      await _db.collection('orders').add(order);
+      await _db.from('orders').insert(order);
       await clearCart();
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -250,3 +254,5 @@ class CartProvider with ChangeNotifier {
 
   int? get returnToIndex => _returnToIndex;
 }
+
+

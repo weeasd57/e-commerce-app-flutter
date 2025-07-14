@@ -1,10 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
 import '../models/order.dart' as ord;
+import 'package:ecommerce/services/supabase_service.dart'; // Import SupabaseService
 
 class OrderProvider with ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final SupabaseClient _supabase = SupabaseService.client; // Use Supabase client
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<ord.Order> _orders = [];
@@ -21,21 +22,20 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final snapshot = await _firestore
-          .collection('orders')
-          .where('userId', isEqualTo: user.uid)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final List<Map<String, dynamic>> ordersData = await _supabase
+          .from('orders')
+          .select()
+          .eq('userId', user.uid)
+          .order('createdAt', ascending: false);
 
-      _orders = snapshot.docs.map((doc) {
-        // Add document ID to the order data
-        final data = doc.data();
-        data['id'] = doc.id;
-        return ord.Order.fromMap(data);
+      _orders = ordersData.map((data) {
+        return ord.Order.fromMap({
+          'id': data['id'], // Supabase typically uses 'id' as primary key
+          ...data,
+        });
       }).toList();
     } catch (error) {
-      // Handle error appropriately in a real app
-      print(error);
+      debugPrint('Error fetching orders: $error');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -47,22 +47,10 @@ class OrderProvider with ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // Find the document with this order ID
-      final orderQuery = await _firestore
-          .collection('orders')
-          .where('id', isEqualTo: orderId)
-          .get();
-
-      // If we found the document, delete it
-      if (orderQuery.docs.isNotEmpty) {
-        await _firestore
-            .collection('orders')
-            .doc(orderQuery.docs.first.id)
-            .delete();
-      } else {
-        // Try to delete by document ID directly
-        await _firestore.collection('orders').doc(orderId).delete();
-      }
+      await _supabase
+          .from('orders')
+          .delete()
+          .eq('id', orderId);
 
       // Remove the order from the local list
       _orders.removeWhere((order) => order.id == orderId);
@@ -71,10 +59,12 @@ class OrderProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (error) {
-      print('Error deleting order: $error');
+      debugPrint('Error deleting order: $error');
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
 }
+
+

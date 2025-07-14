@@ -1,19 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:google_sign_in/google_sign_in.dart' as google_sign_in;
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+import 'package:ecommerce/services/supabase_service.dart';
 
 class AuthProvider with ChangeNotifier {
-  final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
-  final _googleSignIn = GoogleSignIn();
-  User? _user;
+  final _auth = firebase_auth.FirebaseAuth.instance;
+  final supabase.SupabaseClient _supabase = SupabaseService.client; // Use Supabase client for user data
+  final _googleSignIn = google_sign_in.GoogleSignIn();
+  firebase_auth.User? _user;
   bool _isLoading = false;
   late StreamSubscription _authStateSubscription;
 
-  User? get user => _user;
+  firebase_auth.User? get user => _user;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _user != null;
 
@@ -70,11 +71,12 @@ class AuthProvider with ChangeNotifier {
       await userCredential.user?.updateDisplayName(name);
 
       if (userCredential.user != null) {
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        // Save user data to Supabase
+        await _supabase.from('users').insert({
           'uid': userCredential.user!.uid,
           'name': name,
           'email': email,
-          'createdAt': FieldValue.serverTimestamp(),
+          'createdAt': DateTime.now().toIso8601String(), // Use ISO 8601 string for Supabase
           'photoUrl': userCredential.user!.photoURL,
         });
       }
@@ -85,13 +87,13 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> signInWithGoogle(BuildContext context) async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final google_sign_in.GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return; // User cancelled or an error occurred
 
-      final GoogleSignInAuthentication googleAuth =
+      final google_sign_in.GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      final credential = GoogleAuthProvider.credential(
+      final credential = firebase_auth.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
@@ -105,16 +107,19 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _checkAndSaveUser(User user) async {
-    final userDoc = _firestore.collection('users').doc(user.uid);
-    final docSnapshot = await userDoc.get();
+  Future<void> _checkAndSaveUser(firebase_auth.User user) async {
+    // Check if user exists in Supabase and save if not
+    final List<Map<String, dynamic>> users = await _supabase
+        .from('users')
+        .select()
+        .eq('uid', user.uid);
 
-    if (!docSnapshot.exists) {
-      await userDoc.set({
+    if (users.isEmpty) {
+      await _supabase.from('users').insert({
         'uid': user.uid,
         'name': user.displayName,
         'email': user.email,
-        'createdAt': FieldValue.serverTimestamp(),
+        'createdAt': DateTime.now().toIso8601String(), // Use ISO 8601 string for Supabase
         'photoUrl': user.photoURL,
       });
     }
@@ -129,7 +134,7 @@ class AuthProvider with ChangeNotifier {
 
   String _handleAuthError(dynamic e, BuildContext context) {
     final localization = AppLocalizations.of(context)!;
-    if (e is FirebaseAuthException) {
+    if (e is firebase_auth.FirebaseAuthException) {
       switch (e.code) {
         case 'user-not-found':
           return localization.userNotFound;
@@ -154,7 +159,7 @@ class AuthProvider with ChangeNotifier {
 
   String getLocalizedErrorMessage(dynamic e, BuildContext context) {
     final localization = AppLocalizations.of(context)!;
-    if (e is FirebaseAuthException) {
+    if (e is firebase_auth.FirebaseAuthException) {
       switch (e.code) {
         case 'user-not-found':
           return localization.userNotFound;
@@ -183,9 +188,8 @@ class AuthProvider with ChangeNotifier {
     try {
       if (_user != null) {
         await _user!.updateDisplayName(newName);
-        await _firestore.collection('users').doc(_user!.uid).update({
-          'name': newName,
-        });
+        // Update user name in Supabase
+        await _supabase.from('users').update({'name': newName}).eq('uid', _user!.uid);
         _user = _auth.currentUser; // Refresh user data after update
         notifyListeners();
       }
@@ -198,3 +202,4 @@ class AuthProvider with ChangeNotifier {
     }
   }
 }
+

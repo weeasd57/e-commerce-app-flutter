@@ -28,11 +28,13 @@ import 'package:ecommerce/pages/landing_page.dart';
 import 'package:ecommerce/pages/search_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:flutter/services.dart';
+import 'package:ecommerce/services/supabase_service.dart'; // Import SupabaseService
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await SupabaseService.initialize(); // Initialize Supabase
 
   final prefs = await SharedPreferences.getInstance();
   runApp(
@@ -209,3 +211,5 @@ class Home extends StatelessWidget {
 //     return const Center(child: Text('Search Page'));
 //   }
 // }
+
+

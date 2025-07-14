@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
 import 'package:ecommerce/models/product.dart';
+import 'package:ecommerce/services/supabase_service.dart'; // Import SupabaseService
 
 enum SortOption {
   newest,
@@ -9,7 +10,7 @@ enum SortOption {
 }
 
 class ProductProvider with ChangeNotifier {
-  final _db = FirebaseFirestore.instance;
+  final _db = SupabaseService.client; // Use Supabase client
   List<Product> _products = [];
   List<Product> _newProducts = [];
   List<Product> _saleProducts = [];
@@ -104,28 +105,31 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final productsSnapshot = await _db.collection('products').get();
-      _products = productsSnapshot.docs.map((doc) {
-        final data = doc.data();
+      // Fetch products from Supabase
+      final List<Map<String, dynamic>> productsData = await _db
+          .from('products')
+          .select()
+          .order('createdAt', ascending: false); // Order by createdAt
+
+      _products = productsData.map((data) {
         DateTime createdAt;
         String? age;
 
         try {
           final createdAtData = data['createdAt'];
-          if (createdAtData is Timestamp) {
-            createdAt = createdAtData.toDate();
+          if (createdAtData is String) {
+            createdAt = DateTime.parse(createdAtData);
           } else {
-            createdAt = DateTime.now();
+            createdAt = DateTime.now(); // Fallback
           }
         } catch (e) {
-          createdAt = DateTime.now();
+          createdAt = DateTime.now(); // Fallback
         }
 
-        // Extract age if available
         age = data['age'] as String?;
 
         return Product.fromMap({
-          'id': doc.id,
+          'id': data['id'], // Supabase typically uses 'id' as primary key
           ...data,
           'createdAt': createdAt.toIso8601String(),
           'age': age,
@@ -161,23 +165,33 @@ class ProductProvider with ChangeNotifier {
 
   Future<List<Product>> fetchProductsByCategory(String categoryId) async {
     try {
-      final snapshot = await _db
-          .collection('products')
-          .where('categoryId', isEqualTo: categoryId)
-          .get();
+      final List<Map<String, dynamic>> productsData = await _db
+          .from('products')
+          .select()
+          .eq('categoryId', categoryId) // Use .eq for where clause
+          .order('createdAt', ascending: false);
 
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
+      return productsData.map((data) {
+        DateTime createdAt;
         String? age;
 
-        // Extract age if available
+        try {
+          final createdAtData = data['createdAt'];
+          if (createdAtData is String) {
+            createdAt = DateTime.parse(createdAtData);
+          } else {
+            createdAt = DateTime.now(); // Fallback
+          }
+        } catch (e) {
+          createdAt = DateTime.now(); // Fallback
+        }
+
         age = data['age'] as String?;
 
         return Product.fromMap({
-          'id': doc.id,
+          'id': data['id'],
           ...data,
-          'createdAt':
-              (data['createdAt'] as Timestamp).toDate().toIso8601String(),
+          'createdAt': createdAt.toIso8601String(),
           'age': age,
         });
       }).toList();
@@ -187,3 +201,5 @@ class ProductProvider with ChangeNotifier {
     }
   }
 }
+
+
