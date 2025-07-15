@@ -26,7 +26,7 @@ class OrderProvider with ChangeNotifier {
           .from('orders')
           .select()
           .eq('userId', user.uid)
-          .order('createdAt', ascending: false);
+          .order('created_at', ascending: false);
 
       _orders = ordersData.map((data) {
         return ord.Order.fromMap({

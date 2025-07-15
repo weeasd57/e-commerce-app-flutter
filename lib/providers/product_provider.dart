@@ -109,14 +109,14 @@ class ProductProvider with ChangeNotifier {
       final List<Map<String, dynamic>> productsData = await _db
           .from('products')
           .select()
-          .order('createdAt', ascending: false); // Order by createdAt
+          .order('created_at', ascending: false); // Order by created_at
 
       _products = productsData.map((data) {
         DateTime createdAt;
         String? age;
 
         try {
-          final createdAtData = data['createdAt'];
+          final createdAtData = data['created_at'];
           if (createdAtData is String) {
             createdAt = DateTime.parse(createdAtData);
           } else {
@@ -168,15 +168,15 @@ class ProductProvider with ChangeNotifier {
       final List<Map<String, dynamic>> productsData = await _db
           .from('products')
           .select()
-          .eq('categoryId', categoryId) // Use .eq for where clause
-          .order('createdAt', ascending: false);
+          .eq('category_id', categoryId) // Use .eq for where clause
+          .order('created_at', ascending: false);
 
       return productsData.map((data) {
         DateTime createdAt;
         String? age;
 
         try {
-          final createdAtData = data['createdAt'];
+          final createdAtData = data['created_at'];
           if (createdAtData is String) {
             createdAt = DateTime.parse(createdAtData);
           } else {

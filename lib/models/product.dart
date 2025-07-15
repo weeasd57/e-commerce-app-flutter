@@ -33,13 +33,15 @@ class Product {
       name: map['name'] as String,
       description: map['description'] as String,
       price: (map['price'] as num).toDouble(),
-      categoryId: map['categoryId'] as String?,
-      imageUrls: List<String>.from(map['imageUrls'] as List),
-      isHot: map['isHot'] as bool? ?? false,
-      isNew: map['isNew'] as bool? ?? false,
-      onSale: map['onSale'] as bool? ?? false,
-      salePrice: map['salePrice'] != null
-          ? (map['salePrice'] as num).toDouble()
+      categoryId: map['category_id'] as String?,
+      imageUrls: map['image_urls'] != null 
+          ? List<String>.from(map['image_urls'] as List)
+          : [],
+      isHot: map['is_hot'] as bool? ?? false,
+      isNew: map['is_new'] as bool? ?? false,
+      onSale: map['on_sale'] as bool? ?? false,
+      salePrice: map['sale_price'] != null
+          ? (map['sale_price'] as num).toDouble()
           : null,
       createdAt: DateTime.parse(map['createdAt'] as String),
       age: map['age'] as String?,
