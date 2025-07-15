@@ -28,24 +28,44 @@ class Product {
   });
 
   factory Product.fromMap(Map<String, dynamic> map) {
-    return Product(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      description: map['description'] as String,
-      price: (map['price'] as num).toDouble(),
-      categoryId: map['category_id'] as String?,
-      imageUrls: map['image_urls'] != null 
-          ? List<String>.from(map['image_urls'] as List)
-          : [],
-      isHot: map['is_hot'] as bool? ?? false,
-      isNew: map['is_new'] as bool? ?? false,
-      onSale: map['on_sale'] as bool? ?? false,
-      salePrice: map['sale_price'] != null
-          ? (map['sale_price'] as num).toDouble()
-          : null,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      age: map['age'] as String?,
-    );
+    try {
+      return Product(
+        id: map['id']?.toString() ?? '',
+        name: map['name']?.toString() ?? 'Unknown Product',
+        description: map['description']?.toString() ?? '',
+        price: map['price'] != null ? (map['price'] as num).toDouble() : 0.0,
+        categoryId: map['category_id']?.toString(),
+        imageUrls: map['image_urls'] != null 
+            ? List<String>.from(map['image_urls'] as List)
+            : [],
+        isHot: map['is_hot'] as bool? ?? false,
+        isNew: map['is_new'] as bool? ?? false,
+        onSale: map['on_sale'] as bool? ?? false,
+        salePrice: map['sale_price'] != null
+            ? (map['sale_price'] as num).toDouble()
+            : null,
+        createdAt: map['createdAt'] != null 
+            ? DateTime.parse(map['createdAt'] as String)
+            : DateTime.now(),
+        age: map['age']?.toString(),
+      );
+    } catch (e) {
+      // Return a default product if parsing fails
+      return Product(
+        id: map['id']?.toString() ?? '',
+        name: map['name']?.toString() ?? 'Unknown Product',
+        description: map['description']?.toString() ?? '',
+        price: 0.0,
+        categoryId: null,
+        imageUrls: [],
+        isHot: false,
+        isNew: false,
+        onSale: false,
+        salePrice: null,
+        createdAt: DateTime.now(),
+        age: null,
+      );
+    }
   }
 
   Map<String, dynamic> toMap() {

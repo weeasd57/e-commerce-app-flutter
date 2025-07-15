@@ -58,21 +58,27 @@ class ProductCard extends StatelessWidget {
                         child: SizedBox.expand(
                           child: Hero(
                             tag: 'productImage_${product.id}',
-                            child: CachedNetworkImage(
-                              imageUrl: product.imageUrls.first,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).primaryColor),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: Colors.grey[300],
-                                child: Icon(Icons.image_not_supported,
-                                    color: Colors.grey[600]),
-                              ),
-                            ),
+                            child: product.imageUrls.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: product.imageUrls.first,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                            Theme.of(context).primaryColor),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => Container(
+                                      color: Colors.grey[300],
+                                      child: Icon(Icons.image_not_supported,
+                                          color: Colors.grey[600]),
+                                    ),
+                                  )
+                                : Container(
+                                    color: Colors.grey[300],
+                                    child: Icon(Icons.image_not_supported,
+                                        color: Colors.grey[600]),
+                                  ),
                           ),
                         ),
                       ),

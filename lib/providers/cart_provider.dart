@@ -114,7 +114,7 @@ class CartProvider with ChangeNotifier {
             productId: product.id,
             name: product.name,
             price: product.onSale ? product.salePrice! : product.price,
-            imageUrl: product.imageUrls.first,
+            imageUrl: product.imageUrls.isNotEmpty ? product.imageUrls.first : '',
             quantity: quantity,
           ),
         );
@@ -146,10 +146,12 @@ class CartProvider with ChangeNotifier {
   }
 
   Future<void> updateQuantity(String cartItemId, int quantity) async {
-    final item = _items.firstWhere((item) => item.id == cartItemId);
-    item.quantity = quantity;
-    notifyListeners();
-    await _saveCart();
+    final itemIndex = _items.indexWhere((item) => item.id == cartItemId);
+    if (itemIndex != -1) {
+      _items[itemIndex].quantity = quantity;
+      notifyListeners();
+      await _saveCart();
+    }
   }
 
   Future<void> clearCart() async {
@@ -169,12 +171,15 @@ class CartProvider with ChangeNotifier {
           .eq('userId', userId);
 
       if (cartData.isNotEmpty) {
-        final items = (cartData.first['items'] as List)
-            .map((item) => CartItem.fromMap(item as Map<String, dynamic>))
-            .toList();
-        _items
-          ..clear()
-          ..addAll(items);
+        final itemsData = cartData.first['items'];
+        if (itemsData != null && itemsData is List) {
+          final items = itemsData
+              .map((item) => CartItem.fromMap(item as Map<String, dynamic>))
+              .toList();
+          _items
+            ..clear()
+            ..addAll(items);
+        }
       }
     } catch (e) {
       debugPrint('Error loading cart from Supabase: $e');
@@ -214,17 +219,29 @@ class CartProvider with ChangeNotifier {
 
     try {
       final order = {
-        'userId': authProvider.user!.uid,
-        'items': _items.map((item) => item.toMap()).toList(),
-        'total': total,
-        'status': 'pending',
-        'name': name,
+        'customer_name': name,
         'phone': phone,
         'address': address,
-        'createdAt': DateTime.now().toIso8601String(), // Use ISO 8601 string for Supabase
+        'total': total,
+        'status': 'pending',
+        'payment_method': 'cash_on_delivery',
       };
-
-      await _db.from('orders').insert(order);
+      
+      // Insert the order first
+      final orderResponse = await _db.from('orders').insert(order).select().single();
+      final orderId = orderResponse['id'];
+      
+      // Insert order items
+      final orderItems = _items.map((item) => {
+        'order_id': orderId,
+        'name': item.name,
+        'quantity': item.quantity,
+        'price': item.price,
+        'image_url': item.imageUrl,
+      }).toList();
+      
+      await _db.from('order_items').insert(orderItems);
+      
       await clearCart();
 
       ScaffoldMessenger.of(context).showSnackBar(

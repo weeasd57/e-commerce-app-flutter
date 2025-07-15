@@ -73,11 +73,9 @@ class AuthProvider with ChangeNotifier {
       if (userCredential.user != null) {
         // Save user data to Supabase
         await _supabase.from('users').insert({
-          'uid': userCredential.user!.uid,
           'name': name,
           'email': email,
-          'createdAt': DateTime.now().toIso8601String(), // Use ISO 8601 string for Supabase
-          'photoUrl': userCredential.user!.photoURL,
+          'photo_url': userCredential.user!.photoURL,
         });
       }
     } catch (e) {
@@ -112,15 +110,13 @@ class AuthProvider with ChangeNotifier {
     final List<Map<String, dynamic>> users = await _supabase
         .from('users')
         .select()
-        .eq('uid', user.uid);
+        .eq('email', user.email ?? '');
 
     if (users.isEmpty) {
       await _supabase.from('users').insert({
-        'uid': user.uid,
         'name': user.displayName,
         'email': user.email,
-        'createdAt': DateTime.now().toIso8601String(), // Use ISO 8601 string for Supabase
-        'photoUrl': user.photoURL,
+        'photo_url': user.photoURL,
       });
     }
   }
@@ -189,7 +185,7 @@ class AuthProvider with ChangeNotifier {
       if (_user != null) {
         await _user!.updateDisplayName(newName);
         // Update user name in Supabase
-        await _supabase.from('users').update({'name': newName}).eq('uid', _user!.uid);
+        await _supabase.from('users').update({'name': newName}).eq('email', _user!.email ?? '');
         _user = _auth.currentUser; // Refresh user data after update
         notifyListeners();
       }

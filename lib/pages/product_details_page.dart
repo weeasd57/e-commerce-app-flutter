@@ -62,25 +62,33 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               child: Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12.0),
-                  child: CachedNetworkImage(
-                    imageUrl: widget.product.imageUrls.first,
-                    height: Responsive.isDesktop(context) ? 400 : 250,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).primaryColor),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      height: Responsive.isDesktop(context) ? 400 : 250,
-                      width: double.infinity,
-                      color: Colors.grey[300],
-                      child: Icon(Icons.image_not_supported,
-                          color: Colors.grey[600]),
-                    ),
-                  ),
+                  child: widget.product.imageUrls.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: widget.product.imageUrls.first,
+                          height: Responsive.isDesktop(context) ? 400 : 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).primaryColor),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            height: Responsive.isDesktop(context) ? 400 : 250,
+                            width: double.infinity,
+                            color: Colors.grey[300],
+                            child: Icon(Icons.image_not_supported,
+                                color: Colors.grey[600]),
+                          ),
+                        )
+                      : Container(
+                          height: Responsive.isDesktop(context) ? 400 : 250,
+                          width: double.infinity,
+                          color: Colors.grey[300],
+                          child: Icon(Icons.image_not_supported,
+                              color: Colors.grey[600]),
+                        ),
                 ),
               ),
             ),

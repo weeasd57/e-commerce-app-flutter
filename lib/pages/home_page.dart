@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/widgets/category_card.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +10,10 @@ import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/pages/product_details_page.dart';
+import 'package:ecommerce/models/product.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -45,7 +48,16 @@ class _HomePageState extends State<HomePage> {
         child: Consumer<ProductProvider>(
           builder: (context, productProvider, child) {
             if (productProvider.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('جاري تحميل البيانات...'),
+                  ],
+                ),
+              );
             }
 
             return RefreshIndicator(
@@ -61,82 +73,32 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CarouselSlider(
-                            options: CarouselOptions(
-                              height: Responsive.isDesktop(context)
-                                  ? 400
-                                  : Responsive.isTablet(context)
-                                      ? 300
-                                      : 200,
-                              autoPlay: true,
-                              enlargeCenterPage: true,
-                              aspectRatio: 16 / 9,
-                              autoPlayCurve: Curves.fastOutSlowIn,
-                              enableInfiniteScroll: true,
-                              autoPlayAnimationDuration:
-                                  const Duration(milliseconds: 800),
-                              viewportFraction: 0.8,
-                            ),
-                            items: productProvider.saleProducts
-                                .take(5)
-                                .map((product) {
-                              return Builder(
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 5.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      image: DecorationImage(
-                                        image: CachedNetworkImageProvider(
-                                          product.imageUrls.first,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
+                          Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: productProvider.products.isEmpty
+                                ? Container(
+                                    height: 200,
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      'لا توجد منتجات للعرض في الكاروسيل',
+                                      style: Theme.of(context).textTheme.titleMedium,
                                     ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.black.withOpacity(0.7),
-                                          ],
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(16),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            product.name,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            '${product.salePrice} ${currencyProvider.currencyCode}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                  )
+                                : CarouselSlider(
+                                    options: CarouselOptions(
+                                      height: Responsive.isDesktop(context) ? 300 : 200,
+                                      autoPlay: true,
+                                      autoPlayInterval: const Duration(seconds: 5),
+                                      viewportFraction: 1.0,
                                     ),
-                                  );
-                                },
-                              );
-                            }).toList(),
+                                    items: productProvider.products
+                                        .map((product) => _buildCarouselItem(product, currencyProvider))
+                                        .toList(),
+                                  ),
+                          ),
+                          Text(
+                            localization.newArrivals,
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 24),
                           Text(
@@ -150,6 +112,18 @@ class _HomePageState extends State<HomePage> {
                                 return const Center(
                                     child: CircularProgressIndicator());
                               }
+                              
+                              if (categoryProvider.categories.isEmpty) {
+                                return Container(
+                                  height: 120,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'لا توجد فئات متاحة',
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                );
+                              }
+                              
                               return SizedBox(
                                 height: Responsive.isDesktop(context)
                                     ? 150
@@ -207,33 +181,106 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  SliverPadding(
-                    padding: Responsive.scaffoldPadding(context),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: Responsive.gridCrossAxisCount(context),
-                        childAspectRatio: 0.7,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final product = productProvider.products[index];
-                          return ProductCard(
-                            product: product,
-                            isOnSale: product.onSale,
-                          );
-                        },
-                        childCount: productProvider.products.length,
-                      ),
-                    ),
-                  ),
+                  productProvider.products.isEmpty
+                      ? SliverToBoxAdapter(
+                          child: Container(
+                            height: 200,
+                            alignment: Alignment.center,
+                            child: Text(
+                              'لا توجد منتجات متاحة',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                        )
+                      : SliverPadding(
+                          padding: Responsive.scaffoldPadding(context),
+                          sliver: SliverGrid(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: Responsive.gridCrossAxisCount(context),
+                              childAspectRatio: 0.7,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final product = productProvider.products[index];
+                                return ProductCard(
+                                  product: product,
+                                  isOnSale: product.onSale,
+                                );
+                              },
+                              childCount: productProvider.products.length,
+                            ),
+                          ),
+                        ),
                 ],
               ),
             );
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildCarouselItem(Product product, CurrencyProvider currencyProvider) {
+    return Builder(
+      builder: (BuildContext context) {
+        final imageProvider = (product.imageUrls != null && product.imageUrls.isNotEmpty)
+            ? CachedNetworkImageProvider(product.imageUrls.first)
+            : const AssetImage('assets/images/logo.png') as ImageProvider;
+        return Container(
+          width: MediaQuery.of(context).size.width,
+          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            image: DecorationImage(
+              image: imageProvider,
+              fit: BoxFit.cover,
+              onError: (error, stackTrace) {
+                debugPrint('Error loading image: $error');
+              },
+            ),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.7),
+                ],
+              ),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  product.onSale && product.salePrice != null
+                      ? '${product.salePrice} ${currencyProvider.currencyCode}'
+                      : '${product.price} ${currencyProvider.currencyCode}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -345,4 +392,5 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 }

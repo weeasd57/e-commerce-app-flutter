@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
+// Import Supabase
 import 'package:ecommerce/models/category.dart';
 import 'package:ecommerce/services/supabase_service.dart'; // Import SupabaseService
 
@@ -21,19 +21,88 @@ class CategoryProvider with ChangeNotifier {
           .from('categories')
           .select();
 
-      _categories = categoriesData.map((data) {
-        return Category.fromMap({
-          'id': data['id'], // Supabase typically uses 'id' as primary key
-          ...data,
-        });
-      }).toList();
+      debugPrint('Fetched ${categoriesData.length} categories from Supabase');
+      
+      if (categoriesData.isEmpty) {
+        debugPrint('No categories found in database, creating sample data...');
+        await _createSampleCategories();
+        
+        // Try fetching again after creating sample data
+        final retryData = await _db
+            .from('categories')
+            .select();
+        
+        if (retryData.isNotEmpty) {
+          debugPrint('Sample categories created successfully, processing...');
+          _processFetchedCategories(retryData);
+        } else {
+          debugPrint('Failed to create sample categories');
+          _categories = [];
+        }
+      } else {
+        _processFetchedCategories(categoriesData);
+      }
 
-      notifyListeners();
     } catch (e) {
       debugPrint('Error fetching categories: $e');
+      _categories = [];
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+  
+  void _processFetchedCategories(List<Map<String, dynamic>> categoriesData) {
+    try {
+      _categories = categoriesData.map((data) {
+        debugPrint('Processing category data: $data');
+        return Category.fromMap({
+          'id': data['id']?.toString() ?? '',
+          'name': data['name']?.toString() ?? 'Unknown',
+          'icon': data['icon']?.toString(),
+          'imageUrl': data['image_url']?.toString(),
+          ...data,
+        });
+      }).toList();
+      
+      debugPrint('Successfully loaded ${_categories.length} categories');
+      for (var category in _categories) {
+        debugPrint('Category: ${category.name} (ID: ${category.id})');
+      }
+    } catch (e) {
+      debugPrint('Error processing categories: $e');
+      _categories = [];
+    }
+    notifyListeners();
+  }
+  
+  Future<void> _createSampleCategories() async {
+    try {
+      final sampleCategories = [
+        {
+          'name': 'public',
+          'description': 'Public category',
+          'icon': 'public',
+          'color': '#2196F3',
+        },
+        {
+          'name': 'المدارس',
+          'description': 'Schools category',
+          'icon': 'school',
+          'color': '#4CAF50',
+        },
+        {
+          'name': 'المنزل والحديقة',
+          'description': 'Home and garden category',
+          'icon': 'home',
+          'color': '#FF9800',
+        },
+      ];
+      
+      await _db.from('categories').insert(sampleCategories);
+      debugPrint('Sample categories inserted successfully');
+    } catch (e) {
+      debugPrint('Error creating sample categories: $e');
     }
   }
 }
