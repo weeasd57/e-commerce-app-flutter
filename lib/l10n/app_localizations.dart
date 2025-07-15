@@ -775,6 +775,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Exit'**
   String get exit;
+
+  /// No description provided for @loadingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading data...'**
+  String get loadingData;
+
+  /// No description provided for @noProductsForCarousel.
+  ///
+  /// In en, this message translates to:
+  /// **'No products available for carousel'**
+  String get noProductsForCarousel;
+
+  /// No description provided for @noCategoriesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories available'**
+  String get noCategoriesAvailable;
+
+  /// No description provided for @noProductsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No products available'**
+  String get noProductsAvailable;
 }
 
 class _AppLocalizationsDelegate

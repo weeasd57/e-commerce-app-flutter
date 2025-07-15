@@ -112,5 +112,9 @@
     "pleaseEnterDeliveryAddress": "الرجاء إدخال عنوان التوصيل",
     "confirmExitTitle": "تأكيد الخروج",
     "confirmExitContent": "هل أنت متأكد أنك تريد الخروج من التطبيق؟",
-    "exit": "خروج"
-} 
+    "exit": "خروج",
+    "loadingData": "جاري تحميل البيانات...",
+    "noProductsForCarousel": "لا توجد منتجات للعرض في الكاروسيل",
+    "noCategoriesAvailable": "لا توجد فئات متاحة",
+    "noProductsAvailable": "لا توجد منتجات متاحة"
+}

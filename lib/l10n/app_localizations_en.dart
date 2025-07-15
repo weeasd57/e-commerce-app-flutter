@@ -364,4 +364,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exit => 'Exit';
+
+  @override
+  String get loadingData => 'Loading data...';
+
+  @override
+  String get noProductsForCarousel => 'No products available for carousel';
+
+  @override
+  String get noCategoriesAvailable => 'No categories available';
+
+  @override
+  String get noProductsAvailable => 'No products available';
 }

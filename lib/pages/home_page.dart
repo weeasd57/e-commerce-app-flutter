@@ -10,7 +10,6 @@ import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ecommerce/pages/product_details_page.dart';
 import 'package:ecommerce/models/product.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -48,13 +47,13 @@ class _HomePageState extends State<HomePage> {
         child: Consumer<ProductProvider>(
           builder: (context, productProvider, child) {
             if (productProvider.isLoading) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('جاري تحميل البيانات...'),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(localization.loadingData),
                   ],
                 ),
               );
@@ -80,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                                     height: 200,
                                     alignment: Alignment.center,
                                     child: Text(
-                                      'لا توجد منتجات للعرض في الكاروسيل',
+                                      localization.noProductsForCarousel,
                                       style: Theme.of(context).textTheme.titleMedium,
                                     ),
                                   )
@@ -118,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                                   height: 120,
                                   alignment: Alignment.center,
                                   child: Text(
-                                    'لا توجد فئات متاحة',
+                                    localization.noCategoriesAvailable,
                                     style: Theme.of(context).textTheme.titleMedium,
                                   ),
                                 );
@@ -187,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                             height: 200,
                             alignment: Alignment.center,
                             child: Text(
-                              'لا توجد منتجات متاحة',
+                              localization.noProductsAvailable,
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ),
@@ -225,7 +224,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCarouselItem(Product product, CurrencyProvider currencyProvider) {
     return Builder(
       builder: (BuildContext context) {
-        final imageProvider = (product.imageUrls != null && product.imageUrls.isNotEmpty)
+        final imageProvider = (product.imageUrls.isNotEmpty)
             ? CachedNetworkImageProvider(product.imageUrls.first)
             : const AssetImage('assets/images/logo.png') as ImageProvider;
         return Container(

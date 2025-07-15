@@ -361,4 +361,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get exit => 'خروج';
+
+  @override
+  String get loadingData => 'جاري تحميل البيانات...';
+
+  @override
+  String get noProductsForCarousel => 'لا توجد منتجات للعرض في الكاروسيل';
+
+  @override
+  String get noCategoriesAvailable => 'لا توجد فئات متاحة';
+
+  @override
+  String get noProductsAvailable => 'لا توجد منتجات متاحة';
 }

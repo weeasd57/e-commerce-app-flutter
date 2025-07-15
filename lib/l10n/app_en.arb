@@ -112,5 +112,9 @@
     "pleaseEnterDeliveryAddress": "Please enter your delivery address",
     "confirmExitTitle": "Confirm Exit",
     "confirmExitContent": "Are you sure you want to exit the app?",
-    "exit": "Exit"
-} 
+    "exit": "Exit",
+    "loadingData": "Loading data...",
+    "noProductsForCarousel": "No products available for carousel",
+    "noCategoriesAvailable": "No categories available",
+    "noProductsAvailable": "No products available"
+}
