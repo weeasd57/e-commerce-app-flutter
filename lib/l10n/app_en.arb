@@ -33,6 +33,7 @@
     "yourCartIsEmpty": "Your cart is empty",
     "total": "Total",
     "totalAmount": "Total Amount",
+    "subtotal": "Subtotal",
     "deliveryCost": "Delivery Cost",
     "grandTotal": "Grand Total",
     "confirmOrder": "Confirm Order",

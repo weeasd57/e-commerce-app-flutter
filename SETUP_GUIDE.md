@@ -101,6 +101,7 @@ CREATE TABLE users (
 -- إنشاء جدول الطلبات
 CREATE TABLE orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   customer_name VARCHAR(255),
   phone VARCHAR(50),
   address TEXT,
@@ -134,6 +135,9 @@ CREATE TABLE app_settings (
 -- إدراج إعدادات افتراضية
 INSERT INTO app_settings (currency_code, delivery_cost) 
 VALUES ('USD', 0.00);
+
+-- إضافة user_id للجداول الموجودة (إذا كان الجدول موجود بالفعل)
+-- ALTER TABLE orders ADD COLUMN user_id UUID REFERENCES users(id) ON DELETE CASCADE;
 
 
 -- السماح برفع ملفات إلى الباكت images لكل المستخدمين (anon أو authenticated)

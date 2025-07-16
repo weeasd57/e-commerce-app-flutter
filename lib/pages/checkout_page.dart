@@ -37,9 +37,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Consumer3<CartProvider, AuthProvider, NavigationProvider>(
       builder: (context, cartProvider, authProvider, navigationProvider, _) {
         if (!authProvider.isLoggedIn) {
-          if (mounted) {
-            context.read<NavigationProvider>().setPage(3);
-          }
+          // Schedule the navigation change for after the build completes
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              context.read<NavigationProvider>().setPage(3);
+            }
+          });
 
           return const Scaffold();
         }
@@ -220,13 +223,49 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           },
                         ),
                         const SizedBox(height: 32),
+                        // عرض المجموع الفرعي
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(localization.total),
+                            Text(localization.subtotal),
                             Text(
-                              '${cartProvider.total} ${currencyProvider.currencyCode}',
+                              '${cartProvider.total.toStringAsFixed(2)} ${currencyProvider.currencyCode}',
                               style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // عرض تكلفة التوصيل
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(localization.deliveryCost),
+                            Text(
+                              '${currencyProvider.deliveryCost.toStringAsFixed(2)} ${currencyProvider.currencyCode}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        const Divider(),
+                        const SizedBox(height: 8),
+                        // عرض المجموع النهائي
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              localization.total,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            Text(
+                              '${(cartProvider.total + currencyProvider.deliveryCost).toStringAsFixed(2)} ${currencyProvider.currencyCode}',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
                             ),
                           ],
                         ),

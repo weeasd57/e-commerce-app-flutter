@@ -33,6 +33,7 @@
     "yourCartIsEmpty": "سلة التسوق فارغة",
     "total": "المجموع:",
     "totalAmount": "المبلغ الإجمالي",
+    "subtotal": "المجموع الجزئي",
     "deliveryCost": "تكلفة التوصيل",
     "grandTotal": "المجموع الكلي",
     "confirmOrder": "تأكيد الطلب",

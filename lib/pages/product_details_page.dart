@@ -4,6 +4,7 @@ import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/models/product.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
+import 'package:ecommerce/providers/wishlist_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/providers/color_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -26,6 +27,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final currencyProvider = Provider.of<CurrencyProvider>(context);
     final colorProvider = Provider.of<ColorProvider>(context);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
 
     final selectedColor = colorProvider.selectedColorOption;
     final primaryColor =
@@ -49,6 +51,29 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
               )
             : null,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8.0),
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: IconButton(
+              icon: Icon(
+                wishlistProvider.wishlistIds.contains(widget.product.id)
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: wishlistProvider.wishlistIds.contains(widget.product.id)
+                    ? Colors.red
+                    : Colors.white,
+                size: 24,
+              ),
+              onPressed: () {
+                wishlistProvider.toggleWishlist(widget.product, context);
+              },
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: Responsive.scaffoldPadding(context),
@@ -219,6 +244,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   backgroundColor:
                       primaryColor, // Use the selected primary color
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Add to Wishlist Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  wishlistProvider.toggleWishlist(widget.product, context);
+                },
+                icon: Icon(
+                  wishlistProvider.wishlistIds.contains(widget.product.id)
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                ),
+                label: Text(
+                  wishlistProvider.wishlistIds.contains(widget.product.id)
+                      ? 'إزالة من المفضلة'
+                      : 'إضافة إلى المفضلة',
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
                 ),
               ),

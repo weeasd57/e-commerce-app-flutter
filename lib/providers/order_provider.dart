@@ -16,16 +16,33 @@ class OrderProvider with ChangeNotifier {
 
   Future<void> fetchOrders() async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    if (user == null || user.email == null) return;
 
     _isLoading = true;
     notifyListeners();
 
     try {
+      // First, get the user_id from the users table
+      final userEmail = user.email ?? '';
+      final userData = await _supabase
+          .from('users')
+          .select('id')
+          .eq('email', userEmail)
+          .maybeSingle();
+      
+      if (userData == null) {
+        // User not found in users table, no orders to show
+        _orders = [];
+        return;
+      }
+      
+      final userId = userData['id'];
+      
+      // Filter orders by user_id
       final List<Map<String, dynamic>> ordersData = await _supabase
           .from('orders')
           .select()
-          .eq('userId', user.uid)
+          .eq('user_id', userId)
           .order('created_at', ascending: false);
 
       _orders = ordersData.map((data) {

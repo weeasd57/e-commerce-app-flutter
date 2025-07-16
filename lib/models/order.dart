@@ -24,6 +24,14 @@ class Order {
     this.paymentMethod,
   });
 
+  // Extract actual address from the stored format "[email@example.com] Actual Address"
+  String get actualAddress {
+    if (address.startsWith('[') && address.contains('] ')) {
+      return address.substring(address.indexOf('] ') + 2);
+    }
+    return address;
+  }
+
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
       id: map['id'] as String? ?? '',

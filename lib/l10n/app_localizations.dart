@@ -296,6 +296,12 @@ abstract class AppLocalizations {
   /// **'Total Amount'**
   String get totalAmount;
 
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
   /// No description provided for @deliveryCost.
   ///
   /// In en, this message translates to:

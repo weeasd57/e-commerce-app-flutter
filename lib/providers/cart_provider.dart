@@ -218,7 +218,37 @@ class CartProvider with ChangeNotifier {
     }
 
     try {
+      // First, ensure user exists in users table
+      final userEmail = authProvider.user?.email ?? '';
+      final userName = authProvider.user?.displayName ?? name;
+      
+      // Check if user exists, if not create one
+      final existingUser = await _db
+          .from('users')
+          .select('id')
+          .eq('email', userEmail)
+          .maybeSingle();
+      
+      String userId;
+      if (existingUser != null) {
+        userId = existingUser['id'];
+      } else {
+        // Create new user
+        final newUser = await _db
+            .from('users')
+            .insert({
+              'email': userEmail,
+              'name': userName,
+              'role': 'user',
+              'is_active': true,
+            })
+            .select('id')
+            .single();
+        userId = newUser['id'];
+      }
+      
       final order = {
+        'user_id': userId,
         'customer_name': name,
         'phone': phone,
         'address': address,
