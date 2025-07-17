@@ -20,6 +20,8 @@ class ProductDetailsPage extends StatefulWidget {
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _quantity = 1;
+  int _selectedImageIndex = 0;
+  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -80,43 +82,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
-            Hero(
-              tag:
-                  'productImage_${widget.product.id}', // Unique tag for Hero animation
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12.0),
-                  child: widget.product.imageUrls.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: widget.product.imageUrls.first,
-                          height: Responsive.isDesktop(context) ? 400 : 250,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Theme.of(context).primaryColor),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            height: Responsive.isDesktop(context) ? 400 : 250,
-                            width: double.infinity,
-                            color: Colors.grey[300],
-                            child: Icon(Icons.image_not_supported,
-                                color: Colors.grey[600]),
-                          ),
-                        )
-                      : Container(
-                          height: Responsive.isDesktop(context) ? 400 : 250,
-                          width: double.infinity,
-                          color: Colors.grey[300],
-                          child: Icon(Icons.image_not_supported,
-                              color: Colors.grey[600]),
-                        ),
-                ),
-              ),
-            ),
+            // Product Images Section
+            _buildProductImagesSection(),
             const SizedBox(height: 20),
 
             // Product Name
@@ -281,5 +248,344 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         ),
       ),
     );
+  }
+
+  // بناء قسم الصور
+  Widget _buildProductImagesSection() {
+    final hasMultipleImages = widget.product.imageUrls.length > 1;
+    
+    return Column(
+      children: [
+        // الصورة الرئيسية
+        _buildMainImage(),
+        
+        // مؤشر الصور والصور المصغرة
+        if (hasMultipleImages) ..[
+          const SizedBox(height: 10),
+          _buildImageIndicators(),
+          const SizedBox(height: 15),
+          _buildImageThumbnails(),
+        ],
+      ],
+    );
+  }
+
+  // بناء الصورة الرئيسية
+  Widget _buildMainImage() {
+    return Hero(
+      tag: 'productImage_${widget.product.id}',
+      child: Container(
+        height: Responsive.isDesktop(context) ? 400 : 280,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: widget.product.imageUrls.isNotEmpty
+              ? widget.product.imageUrls.length == 1
+                  ? _buildSingleImage(widget.product.imageUrls.first)
+                  : _buildImagePageView()
+              : _buildPlaceholderImage(),
+        ),
+      ),
+    );
+  }
+
+  // بناء صورة واحدة
+  Widget _buildSingleImage(String imageUrl) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => Container(
+        color: Colors.grey[100],
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).primaryColor,
+            ),
+          ),
+        ),
+      ),
+      errorWidget: (context, url, error) => _buildPlaceholderImage(),
+    );
+  }
+
+  // بناء عرض الصور المتعددة
+  Widget _buildImagePageView() {
+    return PageView.builder(
+      controller: _pageController,
+      itemCount: widget.product.imageUrls.length,
+      onPageChanged: (index) {
+        setState(() {
+          _selectedImageIndex = index;
+        });
+      },
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () => _showImageViewer(index),
+          child: CachedNetworkImage(
+            imageUrl: widget.product.imageUrls[index],
+            width: double.infinity,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              color: Colors.grey[100],
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+            ),
+            errorWidget: (context, url, error) => _buildPlaceholderImage(),
+          ),
+        );
+      },
+    );
+  }
+
+  // بناء الصورة الافتراضية
+  Widget _buildPlaceholderImage() {
+    return Container(
+      width: double.infinity,
+      color: Colors.grey[300],
+      child: Icon(
+        Icons.image_not_supported,
+        color: Colors.grey[600],
+        size: 50,
+      ),
+    );
+  }
+
+  // بناء مؤشرات الصور
+  Widget _buildImageIndicators() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        widget.product.imageUrls.length,
+        (index) => AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: _selectedImageIndex == index ? 12 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: _selectedImageIndex == index
+                ? Theme.of(context).primaryColor
+                : Colors.grey[400],
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // بناء الصور المصغرة
+  Widget _buildImageThumbnails() {
+    return SizedBox(
+      height: 80,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: widget.product.imageUrls.length,
+        itemBuilder: (context, index) {
+          final isSelected = _selectedImageIndex == index;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedImageIndex = index;
+              });
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[300]!,
+                  width: isSelected ? 3 : 1,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: Theme.of(context).primaryColor.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: CachedNetworkImage(
+                  imageUrl: widget.product.imageUrls[index],
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: Colors.grey[200],
+                    child: Icon(
+                      Icons.image,
+                      color: Colors.grey[400],
+                      size: 20,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: Colors.grey[200],
+                    child: Icon(
+                      Icons.broken_image,
+                      color: Colors.grey[400],
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // عرض الصور في ملء الشاشة
+  void _showImageViewer(int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _ImageViewerPage(
+          imageUrls: widget.product.imageUrls,
+          initialIndex: initialIndex,
+          productName: widget.product.name,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+}
+
+// صفحة عرض الصور في ملء الشاشة
+class _ImageViewerPage extends StatefulWidget {
+  final List<String> imageUrls;
+  final int initialIndex;
+  final String productName;
+
+  const _ImageViewerPage({
+    required this.imageUrls,
+    required this.initialIndex,
+    required this.productName,
+  });
+
+  @override
+  State<_ImageViewerPage> createState() => _ImageViewerPageState();
+}
+
+class _ImageViewerPageState extends State<_ImageViewerPage> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(
+          '${_currentIndex + 1} / ${widget.imageUrls.length}',
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.imageUrls.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) {
+          return InteractiveViewer(
+            minScale: 0.5,
+            maxScale: 3.0,
+            child: Center(
+              child: CachedNetworkImage(
+                imageUrl: widget.imageUrls[index],
+                fit: BoxFit.contain,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => const Center(
+                  child: Icon(
+                    Icons.error,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      bottomNavigationBar: widget.imageUrls.length > 1
+          ? Container(
+              color: Colors.black,
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  widget.imageUrls.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: _currentIndex == index
+                          ? Colors.white
+                          : Colors.grey[600],
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : null,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }
