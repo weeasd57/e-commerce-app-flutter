@@ -21,7 +21,6 @@ class CategoryProvider with ChangeNotifier {
           .from('categories')
           .select();
 
-      debugPrint('Fetched ${categoriesData.length} categories from Supabase');
       
       if (categoriesData.isEmpty) {
         debugPrint('No categories found in database, creating sample data...');
@@ -55,7 +54,6 @@ class CategoryProvider with ChangeNotifier {
   void _processFetchedCategories(List<Map<String, dynamic>> categoriesData) {
     try {
       _categories = categoriesData.map((data) {
-        debugPrint('Processing category data: $data');
         return Category.fromMap({
           'id': data['id']?.toString() ?? '',
           'name': data['name']?.toString() ?? 'Unknown',
@@ -65,10 +63,7 @@ class CategoryProvider with ChangeNotifier {
         });
       }).toList();
       
-      debugPrint('Successfully loaded ${_categories.length} categories');
-      for (var category in _categories) {
-        debugPrint('Category: ${category.name} (ID: ${category.id})');
-      }
+      
     } catch (e) {
       debugPrint('Error processing categories: $e');
       _categories = [];

@@ -21,10 +21,24 @@ class CurrencyProvider with ChangeNotifier {
 
   Future<void> _loadInitialValuesAndListen() async {
     final prefs = await SharedPreferences.getInstance();
-    _currencyCode = prefs.getString(_currencyKey) ?? 'SAR';
-    _deliveryCost = prefs.getDouble(_deliveryCostKey) ?? 0.0;
-    notifyListeners();
+    
+    // تحميل القيم من التخزين المحلي أولاً
+    final savedCurrency = prefs.getString(_currencyKey);
+    final savedDeliveryCost = prefs.getDouble(_deliveryCostKey);
+    
+    if (savedCurrency != null) {
+      _currencyCode = savedCurrency;
+    }
+    if (savedDeliveryCost != null) {
+      _deliveryCost = savedDeliveryCost;
+    }
+    
+    // إخطار المستمعين فقط إذا وجدنا قيماً محفوظة
+    if (savedCurrency != null || savedDeliveryCost != null) {
+      notifyListeners();
+    }
 
+    // بدء تحديث القيم من السيرفر
     _startRefreshingCurrency();
   }
 
@@ -40,31 +54,38 @@ class CurrencyProvider with ChangeNotifier {
     try {
       final data = await SupabaseService.getAppSettings();
 
-      if (data != null) {
-        final newCurrencyCode = data['currency_code'] as String?;
-        final newDeliveryCost = data['delivery_cost'] as double?;
+      final newCurrencyCode = data['currency_code'] as String?;
+      final newDeliveryCost = data['delivery_cost'] as double?;
 
-        bool changed = false;
-
-        if (newCurrencyCode != null && newCurrencyCode != _currencyCode) {
-          _currencyCode = newCurrencyCode;
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(_currencyKey, _currencyCode);
-          changed = true;
-        }
-
-        if (newDeliveryCost != null && newDeliveryCost != _deliveryCost) {
-          _deliveryCost = newDeliveryCost;
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setDouble(_deliveryCostKey, _deliveryCost);
-          changed = true;
-        }
-
-        if (changed) {
-          notifyListeners();
-        }
+      // تجنب التحديثات غير الضرورية والتأكد من صحة القيم
+      if (newCurrencyCode == null || newDeliveryCost == null) {
+        debugPrint('تم استلام قيم غير صالحة من السيرفر');
+        return;
       }
-    } catch (e) {
+
+      final prefs = await SharedPreferences.getInstance();
+      bool changed = false;
+
+      // تحديث العملة فقط إذا كانت مختلفة
+      if (newCurrencyCode != _currencyCode) {
+        _currencyCode = newCurrencyCode;
+        await prefs.setString(_currencyKey, _currencyCode);
+        changed = true;
+        debugPrint('تم تحديث العملة إلى: $_currencyCode');
+      }
+
+      // تحديث تكلفة التوصيل فقط إذا كانت مختلفة
+      if (newDeliveryCost != _deliveryCost) {
+        _deliveryCost = newDeliveryCost;
+        await prefs.setDouble(_deliveryCostKey, _deliveryCost);
+        changed = true;
+        debugPrint('تم تحديث تكلفة التوصيل إلى: $_deliveryCost');
+      }
+
+      if (changed) {
+        notifyListeners();
+      }
+        } catch (e) {
       debugPrint('Error fetching app settings from Supabase: $e');
     }
   }

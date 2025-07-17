@@ -9,6 +9,7 @@ import 'package:ecommerce/pages/orders_page.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/providers/language_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -43,7 +44,7 @@ class ProfilePage extends StatelessWidget {
                     backgroundColor:
                         Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     backgroundImage: user.photoURL != null
-                        ? NetworkImage(user.photoURL!)
+                        ? CachedNetworkImageProvider(user.photoURL!)
                         : null,
                     child: user.photoURL == null
                         ? const Icon(Icons.person, size: 50, color: Colors.grey)

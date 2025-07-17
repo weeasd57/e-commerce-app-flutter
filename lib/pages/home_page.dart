@@ -24,47 +24,62 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isFilterExpanded = false;
 
+  final _refreshKey = GlobalKey<RefreshIndicatorState>();
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<ProductProvider>().fetchProducts();
-      context.read<CategoryProvider>().fetchCategories();
+    // استخدام addPostFrameCallback لتجنب تحديث الحالة أثناء البناء
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
     });
+  }
+
+  Future<void> _loadData() async {
+    if (!mounted) return;
+    // تحميل البيانات فقط إذا كانت فارغة أو قديمة
+    await Future.wait([
+      context.read<ProductProvider>().fetchProducts(),
+      context.read<CategoryProvider>().fetchCategories(),
+    ]);
+  }
+
+  Future<void> _refreshData() async {
+    // تحميل البيانات بالقوة عند السحب للتحديث
+    await Future.wait([
+      context.read<ProductProvider>().fetchProducts(forceRefresh: true),
+      context.read<CategoryProvider>().fetchCategories(),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     final currencyProvider = context.watch<CurrencyProvider>();
     final localization = AppLocalizations.of(context)!;
-    Provider.of<ProductProvider>(context);
 
-    return Center(
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
-        ),
-        child: Consumer<ProductProvider>(
-          builder: (context, productProvider, child) {
-            if (productProvider.isLoading) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 16),
-                    Text(localization.loadingData),
-                  ],
-                ),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                await productProvider.fetchProducts();
-                await context.read<CategoryProvider>().fetchCategories();
-              },
-              child: CustomScrollView(
+    return RefreshIndicator(
+      key: _refreshKey,
+      onRefresh: _refreshData,
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
+          ),
+          child: Consumer2<ProductProvider, CategoryProvider>(
+            builder: (context, productProvider, categoryProvider, child) {
+              if (productProvider.isLoading && productProvider.products.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(localization.loadingData),
+                    ],
+                  ),
+                );
+              }
+              return CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
@@ -213,9 +228,9 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                 ],
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 
 class SupabaseService {
   static Future<void> initialize() async {
@@ -10,12 +11,29 @@ class SupabaseService {
 
   static SupabaseClient get client => Supabase.instance.client;
 
-  static Future<Map<String, dynamic>?> getAppSettings() async {
-    final response = await client
-        .from('settings')
-        .select('currency_code, delivery_cost')
-        .single();
-    return response;
+  static Future<Map<String, dynamic>> getAppSettings() async {
+    try {
+      final List<Map<String, dynamic>> response = await client
+          .from('app_settings')
+          .select('currency_code, delivery_cost');
+      
+      if (response.isEmpty) {
+        // إذا لم يتم العثور على إعدادات، إرجاع القيم الافتراضية
+        return {
+          'currency_code': 'USD',
+          'delivery_cost': 0.00,
+        };
+      }
+      
+      return response.first;
+    } catch (e) {
+      debugPrint('خطأ في جلب إعدادات التطبيق: $e');
+      // إرجاع القيم الافتراضية في حالة حدوث خطأ
+      return {
+        'currency_code': 'USD',
+        'delivery_cost': 0.00,
+      };
+    }
   }
 }
 

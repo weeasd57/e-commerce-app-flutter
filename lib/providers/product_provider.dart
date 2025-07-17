@@ -18,12 +18,20 @@ class ProductProvider with ChangeNotifier {
   List<Product> _filteredProducts = [];
   bool _isLoading = false;
   bool _hasError = false;
+  DateTime? _lastFetch; // تتبع آخر مرة تم فيها تحديث البيانات
 
   // Filter states
   bool _showOnSale = false;
   bool _showHotItems = false;
   bool _showNewArrivals = false;
   SortOption _sortOption = SortOption.newest;
+  
+  // التحقق مما إذا كانت البيانات محدثة
+  bool get _isDataStale {
+    if (_lastFetch == null) return true;
+    final difference = DateTime.now().difference(_lastFetch!);
+    return difference.inMinutes > 15; // تحديث كل 15 دقيقة
+  }
 
   List<Product> get products =>
       _filteredProducts.isEmpty ? _products : _filteredProducts;
@@ -102,214 +110,63 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts({bool forceRefresh = false}) async {
+    // تجنب التحميل المتكرر إذا كانت البيانات محدثة
+    if (_isLoading || (!forceRefresh && !_isDataStale && _products.isNotEmpty)) {
+      return;
+    }
+
+    // تحديث حالة التحميل بدون إخطار المستمعين
     _isLoading = true;
     _hasError = false;
-    notifyListeners();
+    // تأخير الإخطار للإطار التالي
+    Future.microtask(() => notifyListeners());
 
     try {
-      // Fetch products from Supabase
-      final List<Map<String, dynamic>> productsData = await _db
+      final List<Map<String, dynamic>> data = await _db
           .from('products')
           .select()
-          .order('created_at', ascending: false); // Order by created_at
-
-      debugPrint('Fetched ${productsData.length} products from Supabase');
+          .order('created_at');
       
-      if (productsData.isEmpty) {
-        debugPrint('No products found in database, creating sample data...');
-        await _createSampleProducts();
-        
-        // Try fetching again after creating sample data
-        final retryData = await _db
-            .from('products')
-            .select()
-            .order('created_at', ascending: false);
-        
-        if (retryData.isNotEmpty) {
-          debugPrint('Sample products created successfully, processing...');
-        _processFetchedProducts(retryData);
-        } else {
-          debugPrint('Failed to create sample products');
-          _products = [];
-          _newProducts = [];
-          _saleProducts = [];
-          _hotProducts = [];
-          _filteredProducts = [];
+      _products = data.map((json) {
+        DateTime createdAt;
+        String? age;
+
+        try {
+          final createdAtData = json['created_at'];
+          if (createdAtData is String) {
+            createdAt = DateTime.parse(createdAtData);
+          } else {
+            createdAt = DateTime.now();
+          }
+        } catch (e) {
+          createdAt = DateTime.now();
         }
-        notifyListeners();
-        return;
-      }
-      
-      _processFetchedProducts(productsData);
 
+        age = json['age'] as String?;
+
+        return Product.fromMap({
+          'id': json['id']?.toString() ?? '',
+          ...json,
+          'createdAt': createdAt.toIso8601String(),
+          'age': age,
+        });
+      }).toList();
+
+      _newProducts = _products.where((product) => product.isNew).toList();
+      _saleProducts = _products.where((product) => product.onSale).toList();
+      _hotProducts = _products.where((product) => product.isHot).toList();
+      _lastFetch = DateTime.now();
+      _applyFilters();
     } catch (e) {
-      debugPrint('Error fetching products: $e');
-      _products = [];
-      _newProducts = [];
-      _saleProducts = [];
-      _hotProducts = [];
-      _filteredProducts = [];
+      debugPrint('خطأ في تحميل المنتجات: $e');
+      _hasError = true;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
   
-  void _processFetchedProducts(List<Map<String, dynamic>> productsData) {
-    try {
-      _products = productsData.map((data) {
-        DateTime createdAt;
-        String? age;
-
-        try {
-          final createdAtData = data['created_at'];
-          if (createdAtData is String) {
-            createdAt = DateTime.parse(createdAtData);
-          } else {
-            createdAt = DateTime.now(); // Fallback
-          }
-        } catch (e) {
-          createdAt = DateTime.now(); // Fallback
-        }
-
-        age = data['age'] as String?;
-
-        return Product.fromMap({
-          'id': data['id']?.toString() ?? '',
-          ...data,
-          'createdAt': createdAt.toIso8601String(),
-          'age': age,
-        });
-      }).toList();
-
-      // Filter new products with null check
-      _newProducts = _products.where((product) {
-        try {
-          return product.isNew;
-        } catch (e) {
-          debugPrint('Error checking isNew for product: $e');
-          return false;
-        }
-      }).toList();
-      
-      if (_newProducts.isNotEmpty) {
-        _newProducts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      }
-
-      // Filter sale products with null check
-      _saleProducts = _products.where((product) {
-        try {
-          return product.onSale;
-        } catch (e) {
-          debugPrint('Error checking onSale for product: $e');
-          return false;
-        }
-      }).toList();
-
-      // Filter hot products with null check
-      _hotProducts = _products.where((product) {
-        try {
-          return product.isHot;
-        } catch (e) {
-          debugPrint('Error checking isHot for product: $e');
-          return false;
-        }
-      }).toList();
-
-      // Apply any active filters
-      if (_showOnSale ||
-          _showHotItems ||
-          _showNewArrivals ||
-          _sortOption != SortOption.newest) {
-        _applyFilters();
-      }
-
-      debugPrint('Successfully loaded ${_products.length} products');
-      debugPrint('Sale products: ${_saleProducts.length}');
-      debugPrint('Hot products: ${_hotProducts.length}');
-      debugPrint('New products: ${_newProducts.length}');
-    } catch (e) {
-      debugPrint('Error processing products: $e');
-      _products = [];
-      _newProducts = [];
-      _saleProducts = [];
-      _hotProducts = [];
-    }
-  }
-  
-  Future<void> _createSampleProducts() async {
-    try {
-      final sampleProducts = [
-        {
-          'name': 'iPhone 14 Pro',
-          'description': 'Latest iPhone with advanced camera system',
-          'price': 999.99,
-          'sale_price': 899.99,
-          'image_urls': ['https://picsum.photos/400/300?random=1'],
-          'is_hot': true,
-          'is_new': true,
-          'on_sale': true,
-          'category_id': null,
-          'age': '2024'
-        },
-        {
-          'name': 'Samsung Galaxy S23',
-          'description': 'Powerful Android smartphone',
-          'price': 799.99,
-          'sale_price': null,
-          'image_urls': ['https://picsum.photos/400/300?random=2'],
-          'is_hot': false,
-          'is_new': true,
-          'on_sale': false,
-          'category_id': null,
-          'age': '2024'
-        },
-        {
-          'name': 'MacBook Pro 14',
-          'description': 'High-performance laptop for professionals',
-          'price': 1999.99,
-          'sale_price': 1799.99,
-          'image_urls': ['https://picsum.photos/400/300?random=3'],
-          'is_hot': true,
-          'is_new': false,
-          'on_sale': true,
-          'category_id': null,
-          'age': '2024'
-        },
-        {
-          'name': 'iPad Air',
-          'description': 'Versatile tablet for work and play',
-          'price': 599.99,
-          'sale_price': null,
-          'image_urls': ['https://picsum.photos/400/300?random=4'],
-          'is_hot': false,
-          'is_new': false,
-          'on_sale': false,
-          'category_id': null,
-          'age': '2024'
-        },
-        {
-          'name': 'Apple Watch Series 9',
-          'description': 'Advanced smartwatch with health features',
-          'price': 399.99,
-          'sale_price': 349.99,
-          'image_urls': ['https://picsum.photos/400/300?random=5'],
-          'is_hot': true,
-          'is_new': true,
-          'on_sale': true,
-          'category_id': null,
-          'age': '2024'
-        },
-      ];
-      
-      await _db.from('products').insert(sampleProducts);
-      debugPrint('Sample products inserted successfully');
-    } catch (e) {
-      debugPrint('Error creating sample products: $e');
-    }
-  }
-
   Future<List<Product>> fetchProductsByCategory(String categoryId) async {
     try {
       final List<Map<String, dynamic>> productsData = await _db
