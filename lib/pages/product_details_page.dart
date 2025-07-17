@@ -260,7 +260,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         _buildMainImage(),
         
         // مؤشر الصور والصور المصغرة
-        if (hasMultipleImages) ..[
+        if (hasMultipleImages) ...[
           const SizedBox(height: 10),
           _buildImageIndicators(),
           const SizedBox(height: 15),
