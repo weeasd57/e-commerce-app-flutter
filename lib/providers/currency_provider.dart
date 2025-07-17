@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'package:ecommerce/services/supabase_service.dart';
 
 class CurrencyProvider with ChangeNotifier {
   String _currencyCode = 'SAR'; // Default currency code
@@ -10,15 +10,10 @@ class CurrencyProvider with ChangeNotifier {
   String get currencyCode => _currencyCode;
   double get deliveryCost => _deliveryCost;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String _currencyKey = 'app_currency_code';
-  static const String _deliveryCostKey =
-      'app_delivery_cost'; // New key for delivery cost
-  static const String _settingsCollection = 'settings';
-  static const String _settingsDocId =
-      'app_settings'; // Using the correct document ID 'app_settings'
+  static const String _deliveryCostKey = 'app_delivery_cost';
 
-  StreamSubscription<DocumentSnapshot>? _currencySubscription;
+  Timer? _refreshTimer;
 
   CurrencyProvider() {
     _loadInitialValuesAndListen();
@@ -27,22 +22,25 @@ class CurrencyProvider with ChangeNotifier {
   Future<void> _loadInitialValuesAndListen() async {
     final prefs = await SharedPreferences.getInstance();
     _currencyCode = prefs.getString(_currencyKey) ?? 'SAR';
-    _deliveryCost =
-        prefs.getDouble(_deliveryCostKey) ?? 0.0; // Load initial delivery cost
-    notifyListeners(); // Notify immediately with initial values
+    _deliveryCost = prefs.getDouble(_deliveryCostKey) ?? 0.0;
+    notifyListeners();
 
-    _listenToCurrencyChanges(); // Start listening to Firestore changes
+    _startRefreshingCurrency();
   }
 
-  void _listenToCurrencyChanges() {
-    _currencySubscription?.cancel(); // Cancel any existing subscription
-    _currencySubscription = _firestore
-        .collection(_settingsCollection)
-        .doc(_settingsDocId)
-        .snapshots()
-        .listen((docSnapshot) async {
-      if (docSnapshot.exists && docSnapshot.data() != null) {
-        final data = docSnapshot.data()!;
+  void _startRefreshingCurrency() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _fetchCurrencyAndDeliveryCost();
+    });
+    _fetchCurrencyAndDeliveryCost(); // Fetch immediately on start
+  }
+
+  Future<void> _fetchCurrencyAndDeliveryCost() async {
+    try {
+      final data = await SupabaseService.getAppSettings();
+
+      if (data != null) {
         final newCurrencyCode = data['currency_code'] as String?;
         final newDeliveryCost = data['delivery_cost'] as double?;
 
@@ -58,8 +56,7 @@ class CurrencyProvider with ChangeNotifier {
         if (newDeliveryCost != null && newDeliveryCost != _deliveryCost) {
           _deliveryCost = newDeliveryCost;
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setDouble(
-              _deliveryCostKey, _deliveryCost); // Save to SharedPreferences
+          await prefs.setDouble(_deliveryCostKey, _deliveryCost);
           changed = true;
         }
 
@@ -67,28 +64,24 @@ class CurrencyProvider with ChangeNotifier {
           notifyListeners();
         }
       }
-    }, onError: (e) {
-      debugPrint('Error listening to app settings changes from Firestore: $e');
-    });
+    } catch (e) {
+      debugPrint('Error fetching app settings from Supabase: $e');
+    }
   }
 
   @override
   void dispose() {
-    _currencySubscription?.cancel();
+    _refreshTimer?.cancel();
     super.dispose();
   }
 
-  // Method to update currency (local changes only, Firestore not updated from here)
   Future<void> updateCurrency(String newCode) async {
     _currencyCode = newCode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_currencyKey, _currencyCode);
     notifyListeners();
-
-    // Removed Firestore update logic as changes come from Admin App
   }
 
-  // Method to update delivery cost (local changes only, Firestore not updated from here)
   Future<void> updateDeliveryCost(double newCost) async {
     _deliveryCost = newCost;
     final prefs = await SharedPreferences.getInstance();
@@ -96,3 +89,5 @@ class CurrencyProvider with ChangeNotifier {
     notifyListeners();
   }
 }
+
+

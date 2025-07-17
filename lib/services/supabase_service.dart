@@ -9,6 +9,14 @@ class SupabaseService {
   }
 
   static SupabaseClient get client => Supabase.instance.client;
+
+  static Future<Map<String, dynamic>?> getAppSettings() async {
+    final response = await client
+        .from('settings')
+        .select('currency_code, delivery_cost')
+        .single();
+    return response;
+  }
 }
 
 
