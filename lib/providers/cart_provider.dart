@@ -108,13 +108,27 @@ class CartProvider with ChangeNotifier {
       if (existingItemIndex != -1) {
         _items[existingItemIndex].quantity += quantity;
       } else {
+        // التأكد من وجود رابط صورة صالح
+        String imageUrl = '';
+        if (product.imageUrls.isNotEmpty) {
+          // البحث عن أول رابط صالح للصورة
+          for (String url in product.imageUrls) {
+            if (url.isNotEmpty && (url.startsWith('http') || url.startsWith('https'))) {
+              imageUrl = url;
+              break;
+            }
+          }
+        }
+        
+        debugPrint('Adding product to cart: ${product.name}, imageUrl: $imageUrl');
+        
         _items.add(
           CartItem(
-            id: DateTime.now().toString(),
+            id: DateTime.now().millisecondsSinceEpoch.toString(), // استخدام milliseconds لضمان الفرادة
             productId: product.id,
             name: product.name,
             price: product.onSale ? product.salePrice! : product.price,
-            imageUrl: product.imageUrls.isNotEmpty ? product.imageUrls.first : '',
+            imageUrl: imageUrl,
             quantity: quantity,
           ),
         );

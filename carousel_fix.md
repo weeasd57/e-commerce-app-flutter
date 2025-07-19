@@ -36,6 +36,8 @@ if (carouselProducts.isEmpty) {
 ### 4. إضافة تفاعل مع الـ Carousel:
 - إضافة GestureDetector للانتقال إلى صفحة تفاصيل المنتج
 - تحسين عرض الأسعار (عادي أو مخفض)
+- استخدام CustomPageRoute للانتقال السلس
+- إضافة import لصفحة ProductDetailsPage
 
 ### 5. تحسين معالجة الأخطاء:
 ```dart

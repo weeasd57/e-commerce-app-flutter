@@ -62,25 +62,71 @@ class CartPage extends StatelessWidget {
                             child: ListTile(
                               leading: ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0),
-                                child: CachedNetworkImage(
-                                  imageUrl: item.imageUrl,
+                                child: Container(
                                   width: 50,
                                   height: 50,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Theme.of(context).primaryColor),
-                                    ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8.0),
                                   ),
-                                  errorWidget: (context, url, error) =>
-                                      Container(
-                                    width: 50,
-                                    height: 50,
-                                    color: Colors.grey[300],
-                                    child: Icon(Icons.image_not_supported,
-                                        color: Colors.grey[600]),
-                                  ),
+                                  child: item.imageUrl.isNotEmpty
+                                      ? CachedNetworkImage(
+                                          imageUrl: item.imageUrl,
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.cover,
+                                          memCacheWidth: 100, // تحسين الذاكرة
+                                          memCacheHeight: 100,
+                                          cacheKey: 'cart_${item.id}_${item.imageUrl.hashCode}',
+                                          placeholder: (context, url) => Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              borderRadius: BorderRadius.circular(8.0),
+                                            ),
+                                            child: Center(
+                                              child: SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                                      Theme.of(context).primaryColor),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          errorWidget: (context, url, error) {
+                                            debugPrint('Error loading cart image: $url - Error: $error');
+                                            return Container(
+                                              width: 50,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[300],
+                                                borderRadius: BorderRadius.circular(8.0),
+                                              ),
+                                              child: Icon(
+                                                Icons.image_not_supported,
+                                                color: Colors.grey[600],
+                                                size: 20,
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : Container(
+                                          width: 50,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: Icon(
+                                            Icons.shopping_bag,
+                                            color: Colors.grey[600],
+                                            size: 20,
+                                          ),
+                                        ),
                                 ),
                               ),
                               title: Text(item.name),

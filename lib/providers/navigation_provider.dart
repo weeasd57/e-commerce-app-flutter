@@ -4,6 +4,8 @@ import '../pages/home_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/profile_page.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'category_provider.dart';
 
 class NavigationProvider extends ChangeNotifier {
   int _currentIndex = 0;
@@ -63,8 +65,30 @@ class NavigationProvider extends ChangeNotifier {
     ];
   }
 
-  void setPage(int index) {
+  void setPage(int index, {BuildContext? context}) {
+    int previousIndex = _currentIndex;
     _currentIndex = index;
+    
+    // إذا انتقل المستخدم إلى الصفحة الرئيسية أو صفحة الفئات، تحديث الفئات إذا لزم الأمر
+    if (context != null && (index == 0 || index == 1) && previousIndex != index) {
+      _refreshCategoriesIfNeeded(context);
+    }
+    
     notifyListeners();
+  }
+
+  // دعم التعامل مع القيم القديمة بدون context
+  void setPageIndex(int index) {
+    setPage(index);
+  }
+  
+  // تحديث الفئات تلقائياً عند العودة للصفحة الرئيسية
+  void _refreshCategoriesIfNeeded(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        final categoryProvider = context.read<CategoryProvider>();
+        categoryProvider.refreshIfNeeded();
+      }
+    });
   }
 }

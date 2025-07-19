@@ -181,13 +181,13 @@ class Home extends StatelessWidget {
             colors: selectedColor!.gradientColors!,
             items: navigationProvider.getNavigationItems(localization),
             currentIndex: navigationProvider.currentIndex,
-            onTap: navigationProvider.setPage,
+            onTap: (index) => navigationProvider.setPage(index, context: context),
           );
         } else {
           bottomNav = BottomNavigationBar(
             items: navigationProvider.getNavigationItems(localization),
             currentIndex: navigationProvider.currentIndex,
-            onTap: navigationProvider.setPage,
+            onTap: (index) => navigationProvider.setPage(index, context: context),
             type: BottomNavigationBarType.fixed,
           );
         }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 // Import Supabase
 import 'package:ecommerce/models/product.dart';
 import 'package:ecommerce/services/supabase_service.dart'; // Import SupabaseService
@@ -19,6 +20,9 @@ class ProductProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _hasError = false;
   DateTime? _lastFetch; // تتبع آخر مرة تم فيها تحديث البيانات
+  
+  // Stream subscription للتحديث في الوقت الفعلي
+  StreamSubscription? _productsStreamSubscription;
 
   // Filter states
   bool _showOnSale = false;
@@ -166,6 +170,70 @@ class ProductProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// بدء الاستماع للتحديثات في الوقت الفعلي
+  void startRealTimeUpdates() {
+    // إلغاء الاشتراك السابق إذا كان موجود
+    _productsStreamSubscription?.cancel();
+    
+    // بدء الاستماع للتغييرات في جدول المنتجات
+    _productsStreamSubscription = _db
+        .from('products')
+        .stream(primaryKey: ['id'])
+        .order('created_at')
+        .listen(
+          (List<Map<String, dynamic>> data) {
+            try {
+              _products = data.map((json) {
+                DateTime createdAt;
+                String? age;
+
+                try {
+                  final createdAtData = json['created_at'];
+                  if (createdAtData is String) {
+                    createdAt = DateTime.parse(createdAtData);
+                  } else {
+                    createdAt = DateTime.now();
+                  }
+                } catch (e) {
+                  createdAt = DateTime.now();
+                }
+
+                age = json['age'] as String?;
+
+                return Product.fromMap({
+                  'id': json['id']?.toString() ?? '',
+                  ...json,
+                  'createdAt': createdAt.toIso8601String(),
+                  'age': age,
+                });
+              }).toList();
+
+              _newProducts = _products.where((product) => product.isNew).toList();
+              _saleProducts = _products.where((product) => product.onSale).toList();
+              _hotProducts = _products.where((product) => product.isHot).toList();
+              _lastFetch = DateTime.now();
+              _hasError = false;
+              _applyFilters();
+            } catch (e) {
+              debugPrint('خطأ في تحديث البيانات في الوقت الفعلي: $e');
+              _hasError = true;
+              notifyListeners();
+            }
+          },
+          onError: (error) {
+            debugPrint('خطأ في stream المنتجات: $error');
+            _hasError = true;
+            notifyListeners();
+          },
+        );
+  }
+
+  /// إيقاف الاستماع للتحديثات في الوقت الفعلي
+  void stopRealTimeUpdates() {
+    _productsStreamSubscription?.cancel();
+    _productsStreamSubscription = null;
+  }
   
   Future<List<Product>> fetchProductsByCategory(String categoryId) async {
     try {
@@ -203,6 +271,13 @@ class ProductProvider with ChangeNotifier {
       debugPrint('Error fetching products by category: $e');
       return [];
     }
+  }
+
+  /// تنظيف الموارد عند إزالة الـ Provider
+  @override
+  void dispose() {
+    stopRealTimeUpdates();
+    super.dispose();
   }
 }
 

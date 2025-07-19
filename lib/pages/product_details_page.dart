@@ -7,6 +7,7 @@ import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/providers/color_provider.dart';
+import 'package:ecommerce/providers/product_details_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -18,18 +19,34 @@ class ProductDetailsPage extends StatefulWidget {
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
 }
 
-class _ProductDetailsPageState extends State<ProductDetailsPage> {
+class _ProductDetailsPageState extends StatecProductDetailsPagee {
   int _quantity = 1;
   int _selectedImageIndex = 0;
   final PageController _pageController = PageController();
 
   @override
+  void initState() {
+    super.initState();
+    // بدء التحديثات في الوقت الفعلي لمنتج معين
+    context.readcProductDetailsProvider().startRealTimeUpdates(widget.product.id);
+    context.readcProductDetailsProvider().setProduct(widget.product);
+  }
+
+  @override
+  void dispose() {
+    // إيقاف التحديثات في الوقت الفعلي
+    context.readcProductDetailsProvider().stopRealTimeUpdates();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final currencyProvider = Provider.of<CurrencyProvider>(context);
-    final colorProvider = Provider.of<ColorProvider>(context);
-    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    final cartProvider = Provider.ofcCartProvider(context, listen: false);
+    final currencyProvider = Provider.ofcCurrencyProvider(context);
+    final colorProvider = Provider.ofcColorProvider(context);
+    final wishlistProvider = Provider.ofcWishlistProvider(context);
 
     final selectedColor = colorProvider.selectedColorOption;
     final primaryColor =

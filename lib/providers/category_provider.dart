@@ -7,11 +7,25 @@ class CategoryProvider with ChangeNotifier {
   final _db = SupabaseService.client; // Use Supabase client
   List<Category> _categories = [];
   bool _isLoading = false;
+  DateTime? _lastFetchTime;
+  static const Duration _cacheTimeout = Duration(minutes: 5); // Cache لمدة 5 دقائق
 
   List<Category> get categories => _categories;
   bool get isLoading => _isLoading;
+  
+  // التحقق من صحة الـ cache
+  bool get _isCacheValid {
+    if (_lastFetchTime == null) return false;
+    return DateTime.now().difference(_lastFetchTime!) < _cacheTimeout;
+  }
 
-  Future<void> fetchCategories() async {
+  Future<void> fetchCategories({bool forceRefresh = false}) async {
+    // إذا كان لدينا بيانات صالحة في الـ cache ولم يتم طلب التحديث القسري
+    if (!forceRefresh && _categories.isNotEmpty && _isCacheValid) {
+      debugPrint('Using cached categories data');
+      return;
+    }
+
     _isLoading = true;
     notifyListeners();
 
@@ -21,7 +35,6 @@ class CategoryProvider with ChangeNotifier {
           .from('categories')
           .select();
 
-      
       if (categoriesData.isEmpty) {
         debugPrint('No categories found in database, creating sample data...');
         await _createSampleCategories();
@@ -41,6 +54,10 @@ class CategoryProvider with ChangeNotifier {
       } else {
         _processFetchedCategories(categoriesData);
       }
+
+      // تحديث وقت آخر جلب للبيانات
+      _lastFetchTime = DateTime.now();
+      debugPrint('Categories fetched and cached at ${_lastFetchTime}');
 
     } catch (e) {
       debugPrint('Error fetching categories: $e');
@@ -99,6 +116,27 @@ class CategoryProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('Error creating sample categories: $e');
     }
+  }
+
+  // إعادة تعيين الـ cache والبيانات
+  void clearCache() {
+    _categories.clear();
+    _lastFetchTime = null;
+    debugPrint('Categories cache cleared');
+    notifyListeners();
+  }
+
+  // التحقق من انتهاء صلاحية الـ cache وتحديثه تلقائياً
+  Future<void> refreshIfNeeded() async {
+    if (!_isCacheValid) {
+      debugPrint('Cache expired, refreshing categories...');
+      await fetchCategories(forceRefresh: true);
+    }
+  }
+
+  // إعادة تحميل البيانات بالقوة
+  Future<void> refresh() async {
+    await fetchCategories(forceRefresh: true);
   }
 }
 

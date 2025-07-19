@@ -12,6 +12,7 @@ import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce/models/product.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ecommerce/pages/product_details_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -32,6 +33,8 @@ class _HomePageState extends State<HomePage> {
     // استخدام addPostFrameCallback لتجنب تحديث الحالة أثناء البناء
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
+      // بدء الـ real-time updates
+      _startRealTimeUpdates();
     });
   }
 
@@ -48,8 +51,20 @@ class _HomePageState extends State<HomePage> {
     // تحميل البيانات بالقوة عند السحب للتحديث
     await Future.wait([
       context.read<ProductProvider>().fetchProducts(forceRefresh: true),
-      context.read<CategoryProvider>().fetchCategories(),
+      context.read<CategoryProvider>().fetchCategories(forceRefresh: true),
     ]);
+  }
+
+  void _startRealTimeUpdates() {
+    final productProvider = context.read<ProductProvider>();
+    productProvider.startRealTimeUpdates();
+  }
+
+  @override
+  void dispose() {
+    // إيقاف الـ real-time updates عند إغلاق الصفحة
+    context.read<ProductProvider>().stopRealTimeUpdates();
+    super.dispose();
   }
 
   @override
@@ -242,55 +257,65 @@ class _HomePageState extends State<HomePage> {
         final imageProvider = (product.imageUrls.isNotEmpty)
             ? CachedNetworkImageProvider(product.imageUrls.first)
             : const AssetImage('assets/images/logo.png') as ImageProvider;
-        return Container(
-          width: MediaQuery.of(context).size.width,
-          margin: const EdgeInsets.symmetric(horizontal: 5.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            image: DecorationImage(
-              image: imageProvider,
-              fit: BoxFit.cover,
-              onError: (error, stackTrace) {
-                debugPrint('Error loading image: $error');
-              },
-            ),
-          ),
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CustomPageRoute(
+                child: ProductDetailsPage(product: product),
+              ),
+            );
+          },
           child: Container(
+            width: MediaQuery.of(context).size.width,
+            margin: const EdgeInsets.symmetric(horizontal: 5.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.7),
-                ],
+              image: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
+                onError: (error, stackTrace) {
+                  debugPrint('Error loading image: $error');
+                },
               ),
             ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  product.onSale && product.salePrice != null
-                      ? '${product.salePrice} ${currencyProvider.currencyCode}'
-                      : '${product.price} ${currencyProvider.currencyCode}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    product.onSale && product.salePrice != null
+                        ? '${product.salePrice} ${currencyProvider.currencyCode}'
+                        : '${product.price} ${currencyProvider.currencyCode}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
