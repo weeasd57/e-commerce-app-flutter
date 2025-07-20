@@ -117,5 +117,11 @@
     "loadingData": "جاري تحميل البيانات...",
     "noProductsForCarousel": "لا توجد منتجات للعرض في الكاروسيل",
     "noCategoriesAvailable": "لا توجد فئات متاحة",
-    "noProductsAvailable": "لا توجد منتجات متاحة"
+    "noProductsAvailable": "لا توجد منتجات متاحة",
+    "discount": "خصم",
+    "discountPercentage": "{percentage}% خصم",
+    "savings": "توفر {amount} {currency}",
+    "originalPrice": "السعر الأصلي",
+    "finalPrice": "السعر النهائي",
+    "youSave": "توفر"
 }

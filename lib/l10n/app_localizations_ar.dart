@@ -376,4 +376,26 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noProductsAvailable => 'لا توجد منتجات متاحة';
+
+  @override
+  String get discount => 'خصم';
+
+  @override
+  String discountPercentage(Object percentage) {
+    return '$percentage% خصم';
+  }
+
+  @override
+  String savings(Object amount, Object currency) {
+    return 'توفر $amount $currency';
+  }
+
+  @override
+  String get originalPrice => 'السعر الأصلي';
+
+  @override
+  String get finalPrice => 'السعر النهائي';
+
+  @override
+  String get youSave => 'توفر';
 }

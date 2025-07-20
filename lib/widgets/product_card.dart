@@ -178,26 +178,39 @@ class ProductCard extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (isOnSale) ...[
+                                  if (product.hasDiscount) ...[
+                                    // السعر الأصلي مشطوب
                                     Text(
-                                      '${product.price} ${currencyProvider.currencyCode}',
+                                      '${product.price.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
                                       style: TextStyle(
                                         decoration: TextDecoration.lineThrough,
                                         color: colorScheme.outline,
                                         fontSize: isSmall ? 10 : 12,
                                       ),
                                     ),
+                                    // السعر النهائي بعد التخفيض
                                     Text(
-                                      '${product.salePrice} ${currencyProvider.currencyCode}',
+                                      '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
                                       style: TextStyle(
                                         color: colorScheme.error,
                                         fontWeight: FontWeight.bold,
                                         fontSize: isSmall ? 14 : 16,
                                       ),
                                     ),
+                                    // نسبة التخفيض (اختياري)
+                                    if (product.discountPercentage > 0)
+                                      Text(
+                                        '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+                                        style: TextStyle(
+                                          color: Colors.green,
+                                          fontSize: isSmall ? 8 : 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                   ] else
+                                    // السعر العادي بدون تخفيض
                                     Text(
-                                      '${product.price} ${currencyProvider.currencyCode}',
+                                      '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
                                       style: TextStyle(
                                         color: colorScheme.primary,
                                         fontWeight: FontWeight.bold,

@@ -305,15 +305,57 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    product.onSale && product.salePrice != null
-                        ? '${product.salePrice} ${currencyProvider.currencyCode}'
-                        : '${product.price} ${currencyProvider.currencyCode}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                  // عرض معلومات السعر في الـ Carousel
+                  if (product.hasDiscount) ...[
+                    // السعر الأصلي مشطوب
+                    Text(
+                      '${product.price.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        decoration: TextDecoration.lineThrough,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 4),
+                    // السعر النهائي بعد التخفيض
+                    Row(
+                      children: [
+                        Text(
+                          '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else
+                    // السعر العادي بدون تخفيض
+                    Text(
+                      '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                 ],
               ),
             ),

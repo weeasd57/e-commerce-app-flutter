@@ -7,7 +7,6 @@ import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/providers/color_provider.dart';
-import 'package:ecommerce/providers/product_details_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -19,34 +18,18 @@ class ProductDetailsPage extends StatefulWidget {
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
 }
 
-class _ProductDetailsPageState extends StatecProductDetailsPagee {
+class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _quantity = 1;
   int _selectedImageIndex = 0;
   final PageController _pageController = PageController();
 
   @override
-  void initState() {
-    super.initState();
-    // بدء التحديثات في الوقت الفعلي لمنتج معين
-    context.readcProductDetailsProvider().startRealTimeUpdates(widget.product.id);
-    context.readcProductDetailsProvider().setProduct(widget.product);
-  }
-
-  @override
-  void dispose() {
-    // إيقاف التحديثات في الوقت الفعلي
-    context.readcProductDetailsProvider().stopRealTimeUpdates();
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
-    final cartProvider = Provider.ofcCartProvider(context, listen: false);
-    final currencyProvider = Provider.ofcCurrencyProvider(context);
-    final colorProvider = Provider.ofcColorProvider(context);
-    final wishlistProvider = Provider.ofcWishlistProvider(context);
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final currencyProvider = Provider.of<CurrencyProvider>(context);
+    final colorProvider = Provider.of<ColorProvider>(context);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
 
     final selectedColor = colorProvider.selectedColorOption;
     final primaryColor =
@@ -113,35 +96,7 @@ class _ProductDetailsPageState extends StatecProductDetailsPagee {
             const SizedBox(height: 10),
 
             // Product Price
-            Row(
-              children: [
-                Text(
-                  '${widget.product.price} ',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: primaryColor, // Use the selected primary color
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                Text(
-                  currencyProvider.currencyCode,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: primaryColor, // Use the selected primary color
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                if (widget.product.onSale)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                    child: Text(
-                      localization.sale,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-              ],
-            ),
+            _buildPriceSection(context, primaryColor, currencyProvider, localization),
             const SizedBox(height: 15),
 
             // Product Description
@@ -209,15 +164,9 @@ class _ProductDetailsPageState extends StatecProductDetailsPagee {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  cartProvider.addToCart(widget.product, _quantity, context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          localization.itemAddedToCart(widget.product.name)),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
+              onPressed: () async {
+                  // إزالة الـ SnackBar المكررة - CartProvider يعرض الرسالة بالفعل
+                  await cartProvider.addToCart(widget.product, _quantity, context);
                 },
                 icon: const Icon(Icons.shopping_cart),
                 label: Text(localization.addToCart),
@@ -488,6 +437,98 @@ class _ProductDetailsPageState extends StatecProductDetailsPagee {
           productName: widget.product.name,
         ),
       ),
+    );
+  }
+
+  // بناء قسم السعر مع عرض الخصم
+  Widget _buildPriceSection(BuildContext context, Color primaryColor, 
+      dynamic currencyProvider, dynamic localization) {
+    final hasDiscount = widget.product.hasDiscount;
+    final finalPrice = widget.product.finalPrice;
+    final originalPrice = widget.product.price;
+    final discountPercentage = widget.product.actualDiscountPercentage;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // السعر الحالي (النهائي)
+        Row(
+          children: [
+            Text(
+              '${finalPrice.toStringAsFixed(0)} ',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              currencyProvider.currencyCode,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (widget.product.onSale)
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Text(
+                  localization.sale,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        
+        // السعر الأصلي ونسبة الخصم (إذا كان هناك خصم)
+        if (hasDiscount)...[
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              // السعر الأصلي مشطوب
+              Text(
+                '${originalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(width: 10),
+              // نسبة الخصم
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  localization.discountPercentage(discountPercentage.toStringAsFixed(0)),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          // مقدار التوفير
+          Text(
+            localization.savings(
+              (originalPrice - finalPrice).toStringAsFixed(0),
+              currencyProvider.currencyCode,
+            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.green[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ],
     );
   }
 

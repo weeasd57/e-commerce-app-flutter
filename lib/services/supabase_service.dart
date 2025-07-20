@@ -13,11 +13,16 @@ class SupabaseService {
 
   static Future<Map<String, dynamic>> getAppSettings() async {
     try {
-      final List<Map<String, dynamic>> response = await client
+      debugPrint('Attempting to fetch app settings from Supabase...');
+      
+      final response = await client
           .from('app_settings')
           .select('currency_code, delivery_cost');
       
+      debugPrint('Supabase response: $response');
+      
       if (response.isEmpty) {
+        debugPrint('No app settings found, using defaults');
         // إذا لم يتم العثور على إعدادات، إرجاع القيم الافتراضية
         return {
           'currency_code': 'USD',
@@ -25,9 +30,11 @@ class SupabaseService {
         };
       }
       
+      debugPrint('App settings loaded successfully: ${response.first}');
       return response.first;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('خطأ في جلب إعدادات التطبيق: $e');
+      debugPrint('Stack trace: $stackTrace');
       // إرجاع القيم الافتراضية في حالة حدوث خطأ
       return {
         'currency_code': 'USD',

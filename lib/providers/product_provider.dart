@@ -3,6 +3,8 @@ import 'dart:async';
 // Import Supabase
 import 'package:ecommerce/models/product.dart';
 import 'package:ecommerce/services/supabase_service.dart'; // Import SupabaseService
+import 'package:ecommerce/providers/offline_data_provider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 enum SortOption {
   newest,
@@ -20,9 +22,12 @@ class ProductProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _hasError = false;
   DateTime? _lastFetch; // تتبع آخر مرة تم فيها تحديث البيانات
+  bool _isOffline = false;
+  OfflineDataProvider? _offlineProvider;
   
   // Stream subscription للتحديث في الوقت الفعلي
   StreamSubscription? _productsStreamSubscription;
+  StreamSubscription? _connectivitySubscription;
 
   // Filter states
   bool _showOnSale = false;
@@ -44,6 +49,7 @@ class ProductProvider with ChangeNotifier {
   List<Product> get hotProducts => _hotProducts;
   bool get isLoading => _isLoading;
   bool get hasError => _hasError;
+  bool get isOffline => _isOffline;
 
   bool get showOnSale => _showOnSale;
   bool get showHotItems => _showHotItems;
@@ -127,6 +133,22 @@ class ProductProvider with ChangeNotifier {
     Future.microtask(() => notifyListeners());
 
     try {
+      List<ConnectivityResult> connectivityResults = await (Connectivity().checkConnectivity());
+      if (connectivityResults.contains(ConnectivityResult.none) && _offlineProvider != null) {
+        // في حالة عدم وجود اتصال، استخدم البيانات المخزنة مؤقتًا
+        _isOffline = true;
+        _products = _offlineProvider!.cachedProducts;
+        _newProducts = _offlineProvider!.getNewProducts();
+        _saleProducts = _offlineProvider!.getSaleProducts();
+        _hotProducts = _offlineProvider!.getFeaturedProducts();
+        _lastFetch = _offlineProvider!.lastUpdate;
+        _applyFilters();
+        notifyListeners();
+        return;
+      } else {
+        _isOffline = false;
+      }
+
       final List<Map<String, dynamic>> data = await _db
           .from('products')
           .select()
@@ -162,6 +184,11 @@ class ProductProvider with ChangeNotifier {
       _hotProducts = _products.where((product) => product.isHot).toList();
       _lastFetch = DateTime.now();
       _applyFilters();
+
+      // حفظ البيانات للتخزين المؤقت
+      if (_offlineProvider != null) {
+        await _offlineProvider!.saveProductsForOffline(_products);
+      }
     } catch (e) {
       debugPrint('خطأ في تحميل المنتجات: $e');
       _hasError = true;
@@ -176,6 +203,8 @@ class ProductProvider with ChangeNotifier {
     // إلغاء الاشتراك السابق إذا كان موجود
     _productsStreamSubscription?.cancel();
     
+    debugPrint('🚀 بدء Real-time updates للمنتجات...');
+    
     // بدء الاستماع للتغييرات في جدول المنتجات
     _productsStreamSubscription = _db
         .from('products')
@@ -184,6 +213,20 @@ class ProductProvider with ChangeNotifier {
         .listen(
           (List<Map<String, dynamic>> data) {
             try {
+              debugPrint('🔄 Real-time update received at ${DateTime.now()}: ${data.length} منتج');
+              
+              // Log some product IDs to verify data changes
+              if (data.isNotEmpty) {
+                final firstFewIds = data.take(3).map((p) => p['id']).toList();
+                debugPrint('📦 First few product IDs: $firstFewIds');
+              }
+              
+              final oldProductsCount = _products.length;
+              final oldSaleProductsCount = _saleProducts.length;
+              
+              // Store old products for comparison
+              final oldProductsMap = {for (var p in _products) p.id: p};
+              
               _products = data.map((json) {
                 DateTime createdAt;
                 String? age;
@@ -214,9 +257,44 @@ class ProductProvider with ChangeNotifier {
               _hotProducts = _products.where((product) => product.isHot).toList();
               _lastFetch = DateTime.now();
               _hasError = false;
+              
+              // Detailed change logging
+              if (oldProductsCount != _products.length) {
+                debugPrint('📊 تغيير عدد المنتجات: $oldProductsCount → ${_products.length}');
+              }
+              if (oldSaleProductsCount != _saleProducts.length) {
+                debugPrint('🏷️ تغيير عدد العروض: $oldSaleProductsCount → ${_saleProducts.length}');
+              }
+              
+              // Check for updated products
+              int updatedCount = 0;
+              for (var newProduct in _products) {
+                final oldProduct = oldProductsMap[newProduct.id];
+                if (oldProduct != null) {
+                  // Compare key fields
+                  if (oldProduct.name != newProduct.name ||
+                      oldProduct.price != newProduct.price ||
+                      oldProduct.onSale != newProduct.onSale ||
+                      oldProduct.salePrice != newProduct.salePrice ||
+                      oldProduct.description != newProduct.description ||
+                      oldProduct.isHot != newProduct.isHot ||
+                      oldProduct.isNew != newProduct.isNew) {
+                    updatedCount++;
+                    debugPrint('🔄 Updated product: ${newProduct.id} - ${newProduct.name}');
+                    debugPrint('   Old price: ${oldProduct.price}, New price: ${newProduct.price}');
+                    debugPrint('   Old onSale: ${oldProduct.onSale}, New onSale: ${newProduct.onSale}');
+                  }
+                }
+              }
+              
+              if (updatedCount > 0) {
+                debugPrint('🆕 Total updated products: $updatedCount');
+              }
+              
               _applyFilters();
+              debugPrint('✅ Real-time update applied successfully! Notifying listeners...');
             } catch (e) {
-              debugPrint('خطأ في تحديث البيانات في الوقت الفعلي: $e');
+              debugPrint('❌ خطأ في تحديث البيانات في الوقت الفعلي: $e');
               _hasError = true;
               notifyListeners();
             }
@@ -273,10 +351,60 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
+  /// تهيئة الـ offline data provider
+  void initOfflineDataProvider(OfflineDataProvider offlineProvider) {
+    _offlineProvider = offlineProvider;
+    // تحميل البيانات المخزنة مؤقتًا عند البدء
+    _loadOfflineDataIfNeeded();
+  }
+
+  /// تحميل البيانات المخزنة مؤقتًا عند الحاجة
+  Future<void> _loadOfflineDataIfNeeded() async {
+    if (_offlineProvider != null && _products.isEmpty) {
+      await _offlineProvider!.loadOfflineData();
+      if (_offlineProvider!.cachedProducts.isNotEmpty) {
+        _products = _offlineProvider!.cachedProducts;
+        _newProducts = _offlineProvider!.getNewProducts();
+        _saleProducts = _offlineProvider!.getSaleProducts();
+        _hotProducts = _offlineProvider!.getFeaturedProducts();
+        _lastFetch = _offlineProvider!.lastUpdate;
+        _applyFilters();
+        debugPrint('تم تحميل ${_products.length} منتج من البيانات المحفوظة');
+      }
+    }
+  }
+
+  /// بدء مراقبة حالة الاتصال
+  void startConnectivityMonitoring() {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+      (List<ConnectivityResult> results) {
+        final wasOffline = _isOffline;
+        _isOffline = results.contains(ConnectivityResult.none) || results.isEmpty;
+        
+        if (wasOffline && !_isOffline) {
+          // عاد الاتصال - جلب البيانات الجديدة
+          fetchProducts(forceRefresh: true);
+        } else if (!wasOffline && _isOffline) {
+          // فُقد الاتصال - التبديل للبيانات المحفوظة
+          _loadOfflineDataIfNeeded();
+        }
+        
+        notifyListeners();
+      },
+    );
+  }
+
+  /// إيقاف مراقبة حالة الاتصال
+  void stopConnectivityMonitoring() {
+    _connectivitySubscription?.cancel();
+    _connectivitySubscription = null;
+  }
+
   /// تنظيف الموارد عند إزالة الـ Provider
   @override
   void dispose() {
     stopRealTimeUpdates();
+    stopConnectivityMonitoring();
     super.dispose();
   }
 }

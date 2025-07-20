@@ -117,5 +117,11 @@
     "loadingData": "Loading data...",
     "noProductsForCarousel": "No products available for carousel",
     "noCategoriesAvailable": "No categories available",
-    "noProductsAvailable": "No products available"
+    "noProductsAvailable": "No products available",
+    "discount": "Discount",
+    "discountPercentage": "{percentage}% OFF",
+    "savings": "You save {amount} {currency}",
+    "originalPrice": "Original Price",
+    "finalPrice": "Final Price",
+    "youSave": "You Save"
 }

@@ -379,4 +379,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noProductsAvailable => 'No products available';
+
+  @override
+  String get discount => 'Discount';
+
+  @override
+  String discountPercentage(Object percentage) {
+    return '$percentage% OFF';
+  }
+
+  @override
+  String savings(Object amount, Object currency) {
+    return 'You save $amount $currency';
+  }
+
+  @override
+  String get originalPrice => 'Original Price';
+
+  @override
+  String get finalPrice => 'Final Price';
+
+  @override
+  String get youSave => 'You Save';
 }

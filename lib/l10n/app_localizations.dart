@@ -805,6 +805,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No products available'**
   String get noProductsAvailable;
+
+  /// No description provided for @discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discount;
+
+  /// No description provided for @discountPercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{percentage}% OFF'**
+  String discountPercentage(Object percentage);
+
+  /// No description provided for @savings.
+  ///
+  /// In en, this message translates to:
+  /// **'You save {amount} {currency}'**
+  String savings(Object amount, Object currency);
+
+  /// No description provided for @originalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Original Price'**
+  String get originalPrice;
+
+  /// No description provided for @finalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Final Price'**
+  String get finalPrice;
+
+  /// No description provided for @youSave.
+  ///
+  /// In en, this message translates to:
+  /// **'You Save'**
+  String get youSave;
 }
 
 class _AppLocalizationsDelegate

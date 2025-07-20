@@ -19,6 +19,7 @@ class CartProvider with ChangeNotifier {
   static const String _cartKey = 'cart_items';
   Product? _pendingProduct;
   int? _returnToIndex;
+  bool _isAddingToCart = false; // حماية من الضغط المتعدد
 
   List<CartItem> get items => _items;
   bool get isLoading => _isLoading;
@@ -53,6 +54,14 @@ class CartProvider with ChangeNotifier {
 
   Future<bool> addToCart(
       Product product, int quantity, BuildContext context) async {
+    // حماية من الضغط المتعدد
+    if (_isAddingToCart) {
+      debugPrint('تجاهل طلب إضافة إلى السلة - جاري المعالجة');
+      return false;
+    }
+    
+    _isAddingToCart = true;
+    
     final authProvider = context.read<AuthProvider>();
     final navigationProvider = context.read<NavigationProvider>();
 
@@ -93,10 +102,16 @@ class CartProvider with ChangeNotifier {
       }
       _pendingProduct = null;
       _returnToIndex = null;
+      _isAddingToCart = false; // إعادة تعيين
       return false;
     }
 
-    return await _addProductToCart(product, quantity, context);
+    try {
+      final result = await _addProductToCart(product, quantity, context);
+      return result;
+    } finally {
+      _isAddingToCart = false; // إعادة تعيين في جميع الحالات
+    }
   }
 
   Future<bool> _addProductToCart(
@@ -127,7 +142,7 @@ class CartProvider with ChangeNotifier {
             id: DateTime.now().millisecondsSinceEpoch.toString(), // استخدام milliseconds لضمان الفرادة
             productId: product.id,
             name: product.name,
-            price: product.onSale ? product.salePrice! : product.price,
+            price: product.finalPrice, // استخدام السعر النهائي بعد التخفيض
             imageUrl: imageUrl,
             quantity: quantity,
           ),
