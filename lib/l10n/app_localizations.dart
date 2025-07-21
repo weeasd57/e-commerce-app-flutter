@@ -841,6 +841,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You Save'**
   String get youSave;
+
+  /// No description provided for @wishlistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get wishlistTitle;
+
+  /// No description provided for @noWishlistItems.
+  ///
+  /// In en, this message translates to:
+  /// **'No items in your wishlist'**
+  String get noWishlistItems;
+
+  /// No description provided for @addToWishlistAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Wishlist'**
+  String get addToWishlistAction;
+
+  /// No description provided for @removeFromWishlistAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from Wishlist'**
+  String get removeFromWishlistAction;
 }
 
 class _AppLocalizationsDelegate

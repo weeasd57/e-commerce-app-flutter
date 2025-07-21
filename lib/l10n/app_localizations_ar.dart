@@ -398,4 +398,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get youSave => 'توفر';
+
+  @override
+  String get wishlistTitle => 'المفضلة';
+
+  @override
+  String get noWishlistItems => 'لا توجد منتجات في المفضلة';
+
+  @override
+  String get addToWishlistAction => 'إضافة إلى المفضلة';
+
+  @override
+  String get removeFromWishlistAction => 'إزالة من المفضلة';
 }

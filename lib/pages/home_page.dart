@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/widgets/category_card.dart';
 import 'package:provider/provider.dart';
-import 'package:ecommerce/providers/product_provider.dart';
-import 'package:ecommerce/providers/category_provider.dart';
+import 'package:ecommerce/providers/flutter_stream_product_provider.dart';
+import 'package:ecommerce/providers/flutter_stream_category_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
@@ -42,28 +42,27 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     // تحميل البيانات فقط إذا كانت فارغة أو قديمة
     await Future.wait([
-      context.read<ProductProvider>().fetchProducts(),
-      context.read<CategoryProvider>().fetchCategories(),
+      context.read<FlutterStreamProductProvider>().fetchProducts(),
+      context.read<FlutterStreamCategoryProvider>().fetchCategories(),
     ]);
   }
 
   Future<void> _refreshData() async {
     // تحميل البيانات بالقوة عند السحب للتحديث
     await Future.wait([
-      context.read<ProductProvider>().fetchProducts(forceRefresh: true),
-      context.read<CategoryProvider>().fetchCategories(forceRefresh: true),
+      context.read<FlutterStreamProductProvider>().fetchProducts(forceRefresh: true),
+      context.read<FlutterStreamCategoryProvider>().fetchCategories(forceRefresh: true),
     ]);
   }
 
   void _startRealTimeUpdates() {
-    final productProvider = context.read<ProductProvider>();
-    productProvider.startRealTimeUpdates();
+    final productProvider = context.read<FlutterStreamProductProvider>();
+    productProvider.fetchProducts();
   }
 
   @override
   void dispose() {
-    // إيقاف الـ real-time updates عند إغلاق الصفحة
-    context.read<ProductProvider>().stopRealTimeUpdates();
+    // No need to stop real-time updates for stream providers
     super.dispose();
   }
 
@@ -80,7 +79,7 @@ class _HomePageState extends State<HomePage> {
           constraints: BoxConstraints(
             maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
           ),
-          child: Consumer2<ProductProvider, CategoryProvider>(
+          child: Consumer2<FlutterStreamProductProvider, FlutterStreamCategoryProvider>(
             builder: (context, productProvider, categoryProvider, child) {
               if (productProvider.isLoading && productProvider.products.isEmpty) {
                 return Center(
@@ -135,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 16),
-                          Consumer<CategoryProvider>(
+                          Consumer<FlutterStreamCategoryProvider>(
                             builder: (context, categoryProvider, child) {
                               if (categoryProvider.isLoading) {
                                 return const Center(
@@ -366,7 +365,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFilterSection(BuildContext context,
-      AppLocalizations localization, ProductProvider productProvider) {
+      AppLocalizations localization, FlutterStreamProductProvider productProvider) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),

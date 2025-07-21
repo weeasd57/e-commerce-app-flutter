@@ -62,17 +62,28 @@ class ProductCard extends StatelessWidget {
                                 ? CachedNetworkImage(
                                     imageUrl: product.imageUrls.first,
                                     fit: BoxFit.cover,
+                                    // تحسين الصور للأداء والذاكرة
+                                    memCacheWidth: 300,
+                                    memCacheHeight: 300,
+                                    // مفتاح تخزين مؤقت فريد لكل منتج
+                                    cacheKey: 'product_${product.id}_${product.imageUrls.first.hashCode}',
+                                    fadeInDuration: const Duration(milliseconds: 200),
+                                    fadeOutDuration: const Duration(milliseconds: 200),
                                     placeholder: (context, url) => Center(
                                       child: CircularProgressIndicator(
+                                        strokeWidth: 2.0,
                                         valueColor: AlwaysStoppedAnimation<Color>(
                                             Theme.of(context).primaryColor),
                                       ),
                                     ),
-                                    errorWidget: (context, url, error) => Container(
-                                      color: Colors.grey[300],
-                                      child: Icon(Icons.image_not_supported,
-                                          color: Colors.grey[600]),
-                                    ),
+                                    errorWidget: (context, url, error) {
+                                      debugPrint('Error loading product image: $url - Error: $error');
+                                      return Container(
+                                        color: Colors.grey[300],
+                                        child: Icon(Icons.image_not_supported,
+                                            color: Colors.grey[600]),
+                                      );
+                                    },
                                   )
                                 : Container(
                                     color: Colors.grey[300],

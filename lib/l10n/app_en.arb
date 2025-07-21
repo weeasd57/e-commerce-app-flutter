@@ -123,5 +123,9 @@
     "savings": "You save {amount} {currency}",
     "originalPrice": "Original Price",
     "finalPrice": "Final Price",
-    "youSave": "You Save"
+    "youSave": "You Save",
+    "wishlistTitle": "Wishlist",
+    "noWishlistItems": "No items in your wishlist",
+    "addToWishlistAction": "Add to Wishlist",
+    "removeFromWishlistAction": "Remove from Wishlist"
 }

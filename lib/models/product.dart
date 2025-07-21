@@ -102,18 +102,9 @@ class Product {
         double discountAmount = price * (discount! / 100);
         return price - discountAmount;
       }
-      // إذا لم يكن هناك discount، استخدم salePrice كما هو موجود
-      else if (salePrice != null && salePrice! > 0) {
-        // منطق ذكي محدّث:
-        // إذا كان salePrice أقل من نصف السعر الأصلي فهو غالباً مقدار خصم
-        // وإذا كان أكبر فهو السعر النهائي
-        if (salePrice! < (price * 0.5)) {
-          // إذا كان salePrice أقل من 50% من السعر الأصلي، فهو مقدار خصم
-          return price - salePrice!;
-        } else {
-          // إذا كان 50% أو أكثر، فهو غالباً السعر النهائي
-          return salePrice!;
-        }
+      // إذا كان هناك salePrice وهو أقل من السعر الأصلي، فهو السعر النهائي بعد الخصم
+      else if (salePrice != null && salePrice! > 0 && salePrice! < price) {
+        return salePrice!;
       }
     }
     return price;

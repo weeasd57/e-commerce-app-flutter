@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ecommerce/models/category.dart';
-import 'package:ecommerce/providers/product_provider.dart';
+import 'package:ecommerce/providers/flutter_stream_product_provider.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
@@ -28,7 +28,7 @@ class CategoryProductsPage extends StatelessWidget {
             maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
           ),
           padding: Responsive.scaffoldPadding(context),
-          child: Consumer<ProductProvider>(
+          child: Consumer<FlutterStreamProductProvider>(
             builder: (context, productProvider, _) {
               final categoryProducts = productProvider.products
                   .where((p) => p.categoryId == category.id)

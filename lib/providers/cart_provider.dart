@@ -56,57 +56,59 @@ class CartProvider with ChangeNotifier {
       Product product, int quantity, BuildContext context) async {
     // حماية من الضغط المتعدد
     if (_isAddingToCart) {
-      debugPrint('تجاهل طلب إضافة إلى السلة - جاري المعالجة');
+      debugPrint('طلب إضافة منتج آخر قيد المعالجة...');
       return false;
     }
     
     _isAddingToCart = true;
     
-    final authProvider = context.read<AuthProvider>();
-    final navigationProvider = context.read<NavigationProvider>();
+    try {
+      if (!context.mounted) return false;
+      
+      final authProvider = context.read<AuthProvider>();
+      final navigationProvider = context.read<NavigationProvider>();
 
-    if (!authProvider.isLoggedIn) {
-      _pendingProduct = product;
-      _returnToIndex = navigationProvider.currentIndex;
+      if (!authProvider.isLoggedIn) {
+        _pendingProduct = product;
+        _returnToIndex = navigationProvider.currentIndex;
 
-      final localization = AppLocalizations.of(context)!;
+        if (!context.mounted) return false;
+        final localization = AppLocalizations.of(context)!;
 
-      final result = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: Text(localization.loginRequired),
-          content: Text(localization.loginToAddCart),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _pendingProduct = null;
-                _returnToIndex = null;
-                Navigator.pop(context, false);
-              },
-              child: Text(localization.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-              child: Text(localization.signIn),
-            ),
-          ],
-        ),
-      );
+        final result = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Text(localization.loginRequired),
+            content: Text(localization.loginToAddCart),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _pendingProduct = null;
+                  _returnToIndex = null;
+                  Navigator.pop(context, false);
+                },
+                child: Text(localization.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: Text(localization.signIn),
+              ),
+            ],
+          ),
+        );
 
-      if (result == true && context.mounted) {
-        navigationProvider.setPage(3);
+        if (result == true && context.mounted) {
+          navigationProvider.setPage(3);
+          return false;
+        }
+        _pendingProduct = null;
+        _returnToIndex = null;
         return false;
       }
-      _pendingProduct = null;
-      _returnToIndex = null;
-      _isAddingToCart = false; // إعادة تعيين
-      return false;
-    }
 
-    try {
       final result = await _addProductToCart(product, quantity, context);
       return result;
     } finally {
@@ -236,13 +238,17 @@ class CartProvider with ChangeNotifier {
     required String phone,
     required String address,
   }) async {
+    if (!context.mounted) return;
+    
     final authProvider = context.read<AuthProvider>();
     final localization = AppLocalizations.of(context)!;
 
     if (!authProvider.isLoggedIn) {
-      Navigator.of(context).push(
-        CustomPageRoute(child: const AuthPage()),
-      );
+      if (context.mounted) {
+        Navigator.of(context).push(
+          CustomPageRoute(child: const AuthPage()),
+        );
+      }
       return;
     }
 
@@ -303,20 +309,24 @@ class CartProvider with ChangeNotifier {
       
       await clearCart();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(localization.orderConfirmedSuccess),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localization.orderConfirmedSuccess),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (e) {
       debugPrint('Error placing order: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(localization.orderConfirmationFailed),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localization.orderConfirmationFailed),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       rethrow;
     }
   }

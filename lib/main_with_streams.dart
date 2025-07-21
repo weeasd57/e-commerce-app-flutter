@@ -10,14 +10,15 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/theme_provider.dart';
 import 'package:ecommerce/providers/language_provider.dart';
 import 'package:ecommerce/utils/app_themes.dart';
-import 'package:ecommerce/providers/flutter_stream_product_provider.dart';
-import 'package:ecommerce/providers/flutter_stream_category_provider.dart';
 import 'package:ecommerce/providers/auth_provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/navigation_provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
 import 'package:ecommerce/providers/order_provider.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
+import 'package:ecommerce/providers/stream_providers.dart';
+import 'package:ecommerce/models/product.dart';
+import 'package:ecommerce/models/category.dart';
 import 'package:ecommerce/widgets/exit_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets/gradient_app_bar.dart';
@@ -40,17 +41,61 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        // Essential UI Providers
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
-        ChangeNotifierProvider(create: (_) => FlutterStreamProductProvider()),
-        ChangeNotifierProvider(create: (_) => FlutterStreamCategoryProvider()),
         ChangeNotifierProvider(create: (_) => ColorProvider(prefs)),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        
+        // Auth & User Data Providers
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => CurrencyProvider()),
+        
+        // Stream Providers for Products and Categories
+        StreamProvider<List<Product>>(
+          create: (_) => ProductsStreamProvider.productsStream,
+          initialData: const [],
+          lazy: false,
+        ),
+        StreamProvider<List<Product>>.value(
+          value: ProductsStreamProvider.newProductsStream,
+          initialData: const [],
+        ),
+        StreamProvider<List<Product>>.value(
+          value: ProductsStreamProvider.saleProductsStream,
+          initialData: const [],
+        ),
+        StreamProvider<List<Product>>.value(
+          value: ProductsStreamProvider.hotProductsStream,
+          initialData: const [],
+        ),
+        StreamProvider<List<Category>>(
+          create: (_) => CategoriesStreamProvider.categoriesStream,
+          initialData: const [],
+          lazy: false,
+        ),
+        
+        // Combined HomePage data stream
+        StreamProvider<HomePageData>(
+          create: (_) => HomePageStreamProvider.homePageDataStream,
+          initialData: const HomePageData(
+            products: [],
+            newProducts: [],
+            saleProducts: [],
+            hotProducts: [],
+            categories: [],
+          ),
+          lazy: false,
+        ),
+        
+        // Loading state stream
+        StreamProvider<bool>(
+          create: (_) => HomePageStreamProvider.loadingStream,
+          initialData: false,
+        ),
       ],
       child: MyApp(prefs: prefs),
     ),
@@ -72,19 +117,16 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadLandingPageStatus();
-    // Start real-time updates after the frame is built
+    
+    // Initialize stream providers after the frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startRealTimeUpdates();
+      _initializeStreams();
     });
   }
   
-  void _startRealTimeUpdates() {
-    // Start real-time updates for products and categories
-    final productProvider = context.read<FlutterStreamProductProvider>();
-    final categoryProvider = context.read<FlutterStreamCategoryProvider>();
-    
-    productProvider.fetchProducts();
-    categoryProvider.fetchCategories();
+  void _initializeStreams() {
+    // Initialize the stream providers
+    HomePageStreamProvider.initialize();
   }
 
   Future<void> _loadLandingPageStatus() async {
@@ -214,15 +256,3 @@ class Home extends StatelessWidget {
     );
   }
 }
-
-// The SearchPage class will be in lib/pages/search_page.dart
-// class SearchPage extends StatelessWidget {
-//   const SearchPage({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Search Page'));
-//   }
-// }
-
-

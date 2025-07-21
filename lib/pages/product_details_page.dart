@@ -271,17 +271,27 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       imageUrl: imageUrl,
       width: double.infinity,
       fit: BoxFit.cover,
+      // تحسين أداء الصور
+      memCacheWidth: 600,
+      memCacheHeight: 600,
+      cacheKey: 'product_detail_${widget.product.id}_${imageUrl.hashCode}',
+      fadeInDuration: const Duration(milliseconds: 300),
+      fadeOutDuration: const Duration(milliseconds: 300),
       placeholder: (context, url) => Container(
         color: Colors.grey[100],
         child: Center(
           child: CircularProgressIndicator(
+            strokeWidth: 2.0,
             valueColor: AlwaysStoppedAnimation<Color>(
               Theme.of(context).primaryColor,
             ),
           ),
         ),
       ),
-      errorWidget: (context, url, error) => _buildPlaceholderImage(),
+      errorWidget: (context, url, error) {
+        debugPrint('Error loading product detail image: $url - Error: $error');
+        return _buildPlaceholderImage();
+      },
     );
   }
 

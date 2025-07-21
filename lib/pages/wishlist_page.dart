@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
-import 'package:ecommerce/providers/product_provider.dart';
+import 'package:ecommerce/providers/flutter_stream_product_provider.dart';
 import 'package:ecommerce/widgets/product_card.dart';
+import 'package:ecommerce/l10n/app_localizations.dart';
 
 class WishlistPage extends StatelessWidget {
   const WishlistPage({super.key});
@@ -11,10 +12,10 @@ class WishlistPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('المفضلة'),
+        title: Text(AppLocalizations.of(context)!.wishlistTitle),
         centerTitle: true,
       ),
-      body: Consumer2<WishlistProvider, ProductProvider>(
+      body: Consumer2<WishlistProvider, FlutterStreamProductProvider>(
         builder: (context, wishlistProvider, productProvider, _) {
           if (wishlistProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -37,7 +38,7 @@ class WishlistPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'لا توجد منتجات في المفضلة',
+                    AppLocalizations.of(context)!.noWishlistItems,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.grey.shade600,
                         ),

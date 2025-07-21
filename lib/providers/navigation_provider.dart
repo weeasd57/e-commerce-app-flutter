@@ -4,8 +4,7 @@ import '../pages/home_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/profile_page.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
-import 'category_provider.dart';
+import 'package:ecommerce/providers/stream_providers.dart';
 
 class NavigationProvider extends ChangeNotifier {
   int _currentIndex = 0;
@@ -86,8 +85,8 @@ class NavigationProvider extends ChangeNotifier {
   void _refreshCategoriesIfNeeded(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
-        final categoryProvider = context.read<CategoryProvider>();
-        categoryProvider.refreshIfNeeded();
+        // تحديث البيانات من خلال Stream Providers
+        CategoriesStreamProvider.refresh();
       }
     });
   }

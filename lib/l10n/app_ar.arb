@@ -123,5 +123,9 @@
     "savings": "توفر {amount} {currency}",
     "originalPrice": "السعر الأصلي",
     "finalPrice": "السعر النهائي",
-    "youSave": "توفر"
+    "youSave": "توفر",
+    "wishlistTitle": "المفضلة",
+    "noWishlistItems": "لا توجد منتجات في المفضلة",
+    "addToWishlistAction": "إضافة إلى المفضلة",
+    "removeFromWishlistAction": "إزالة من المفضلة"
 }

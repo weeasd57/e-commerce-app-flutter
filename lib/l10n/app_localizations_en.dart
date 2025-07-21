@@ -401,4 +401,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get youSave => 'You Save';
+
+  @override
+  String get wishlistTitle => 'Wishlist';
+
+  @override
+  String get noWishlistItems => 'No items in your wishlist';
+
+  @override
+  String get addToWishlistAction => 'Add to Wishlist';
+
+  @override
+  String get removeFromWishlistAction => 'Remove from Wishlist';
 }

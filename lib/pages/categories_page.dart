@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ecommerce/providers/category_provider.dart';
+import 'package:ecommerce/providers/flutter_stream_category_provider.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
@@ -18,7 +18,7 @@ class CategoriesPage extends StatelessWidget {
             maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
           ),
           padding: Responsive.scaffoldPadding(context),
-          child: Consumer<CategoryProvider>(
+          child: Consumer<FlutterStreamCategoryProvider>(
             builder: (context, categoryProvider, child) {
               if (categoryProvider.isLoading) {
                 return const Center(child: CircularProgressIndicator());
