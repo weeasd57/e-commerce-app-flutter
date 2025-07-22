@@ -10,15 +10,17 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/theme_provider.dart';
 import 'package:ecommerce/providers/language_provider.dart';
 import 'package:ecommerce/utils/app_themes.dart';
-import 'package:ecommerce/providers/flutter_stream_product_provider.dart';
-import 'package:ecommerce/providers/flutter_stream_category_provider.dart';
+import 'package:ecommerce/providers/product_provider.dart';
+import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/providers/auth_provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/navigation_provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
-import 'package:ecommerce/providers/order_provider.dart';
+import 'package:ecommerce/providers/order_stream_provider.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
+import 'package:ecommerce/providers/connectivity_provider.dart';
 import 'package:ecommerce/widgets/exit_dialog.dart';
+import 'package:ecommerce/widgets/offline_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets/gradient_app_bar.dart';
 import 'widgets/gradient_bottom_nav_bar.dart';
@@ -44,13 +46,14 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
-        ChangeNotifierProvider(create: (_) => FlutterStreamProductProvider()),
-        ChangeNotifierProvider(create: (_) => FlutterStreamCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => ColorProvider(prefs)),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
-        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => OrderStreamProvider()),
         ChangeNotifierProvider(create: (_) => CurrencyProvider()),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
       ],
       child: MyApp(prefs: prefs),
     ),
@@ -79,9 +82,9 @@ class _MyAppState extends State<MyApp> {
   }
   
   void _startRealTimeUpdates() {
-    // Start real-time updates for products and categories
-    final productProvider = context.read<FlutterStreamProductProvider>();
-    final categoryProvider = context.read<FlutterStreamCategoryProvider>();
+    // Fetch initial data for products and categories
+    final productProvider = context.read<ProductProvider>();
+    final categoryProvider = context.read<CategoryProvider>();
     
     productProvider.fetchProducts();
     categoryProvider.fetchCategories();
@@ -164,6 +167,8 @@ class Home extends StatelessWidget {
             colors: selectedColor!.gradientColors!,
             title: Text(navigationProvider.currentPageTitle(localization)),
             actions: [
+              const MiniConnectivityIndicator(showText: false),
+              const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
@@ -177,6 +182,8 @@ class Home extends StatelessWidget {
           appBar = AppBar(
             title: Text(navigationProvider.currentPageTitle(localization)),
             actions: [
+              const MiniConnectivityIndicator(showText: false),
+              const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
@@ -207,7 +214,12 @@ class Home extends StatelessWidget {
 
         return Scaffold(
           appBar: appBar,
-          body: navigationProvider.currentPage,
+          body: Column(
+            children: [
+              const OfflineIndicator(),
+              Expanded(child: navigationProvider.currentPage),
+            ],
+          ),
           bottomNavigationBar: bottomNav,
         );
       },

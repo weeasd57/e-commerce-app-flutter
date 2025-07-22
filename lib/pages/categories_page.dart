@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ecommerce/providers/flutter_stream_category_provider.dart';
+import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
@@ -18,7 +18,7 @@ class CategoriesPage extends StatelessWidget {
             maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
           ),
           padding: Responsive.scaffoldPadding(context),
-          child: Consumer<FlutterStreamCategoryProvider>(
+          child: Consumer<CategoryProvider>(
             builder: (context, categoryProvider, child) {
               if (categoryProvider.isLoading) {
                 return const Center(child: CircularProgressIndicator());
@@ -65,7 +65,7 @@ class CategoriesPage extends StatelessWidget {
                                 return Container(
                                   color: Theme.of(context)
                                       .primaryColor
-                                      .withOpacity(0.1),
+                                      .withValues(alpha: 0.1),
                                   child: Icon(
                                     Icons.image_not_supported,
                                     size: 50,
@@ -78,7 +78,7 @@ class CategoriesPage extends StatelessWidget {
                             Container(
                               color: Theme.of(context)
                                   .primaryColor
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               child: Icon(
                                 Icons.category_outlined,
                                 size: 50,
@@ -92,7 +92,7 @@ class CategoriesPage extends StatelessWidget {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   Colors.transparent,
-                                  Colors.black.withOpacity(0.7),
+                                  Colors.black.withValues(alpha: 0.7),
                                 ],
                               ),
                             ),

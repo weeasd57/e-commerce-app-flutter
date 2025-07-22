@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/order_provider.dart';
+import '../providers/order_stream_provider.dart';
+import '../models/order.dart' as ord;
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:intl/intl.dart';
@@ -16,9 +17,11 @@ class _OrdersPageState extends State<OrdersPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch orders when the page is initialized
-    Future.microtask(
-        () => Provider.of<OrderProvider>(context, listen: false).fetchOrders());
+    // Provider will automatically start streaming when accessed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final orderProvider = Provider.of<OrderStreamProvider>(context, listen: false);
+      orderProvider.clearError();
+    });
   }
 
   @override
@@ -31,57 +34,126 @@ class _OrdersPageState extends State<OrdersPage> {
       appBar: AppBar(
         title: Text(localization.myOrders),
       ),
-      body: Consumer<OrderProvider>(
+      body: Consumer<OrderStreamProvider>(
         builder: (context, orderProvider, child) {
-          if (orderProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (orderProvider.orders.isEmpty) {
-            return Center(child: Text(localization.noOrders));
-          }
-
-          return ListView.builder(
-            itemCount: orderProvider.orders.length,
-            itemBuilder: (context, index) {
-              final order = orderProvider.orders[index];
-              Color statusColor;
-              IconData statusIcon;
-              String localizedStatus;
-
-              switch (order.status.toLowerCase()) {
-                case 'pending':
-                  statusColor = Colors.orange;
-                  statusIcon = Icons.hourglass_top_rounded;
-                  localizedStatus = localization.pending;
-                  break;
-                case 'processing':
-                  statusColor = Colors.blueAccent;
-                  statusIcon = Icons.sync_rounded;
-                  localizedStatus = localization.processing;
-                  break;
-                case 'shipped':
-                  statusColor = Colors.green;
-                  statusIcon = Icons.local_shipping_rounded;
-                  localizedStatus = localization.shipped;
-                  break;
-                case 'delivered':
-                  statusColor = Colors.green;
-                  statusIcon = Icons.check_circle_rounded;
-                  localizedStatus = localization.delivered;
-                  break;
-                case 'cancelled':
-                  statusColor = Colors.redAccent;
-                  statusIcon = Icons.cancel_rounded;
-                  localizedStatus = localization.cancelled;
-                  break;
-                default:
-                  statusColor = Colors.grey;
-                  statusIcon = Icons.info_outline_rounded;
-                  localizedStatus = order.status;
+          return StreamBuilder<List<ord.Order>>(
+            stream: orderProvider.createOrdersStream(),
+            builder: (context, snapshot) {
+              // Handle loading state
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(localization.loadingOrders),
+                    ],
+                  ),
+                );
               }
+              
+              // Handle error state
+              if (snapshot.hasError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                      const SizedBox(height: 16),
+                      Text(
+                        localization.errorLoadingOrders,
+                        style: TextStyle(fontSize: 18, color: Colors.red[700]),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${snapshot.error}',
+                        style: TextStyle(color: Colors.grey[600]),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              }
+              
+              final orders = snapshot.data ?? [];
+              
+              // Show empty state
+              if (orders.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shopping_bag_outlined, 
+                        size: 64, color: Colors.grey[400]),
+                      const SizedBox(height: 16),
+                      Text(
+                        localization.noOrders,
+                        style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Manual refresh orders
+                          final orderProvider = Provider.of<OrderStreamProvider>(context, listen: false);
+                          orderProvider.refreshOrders();
+                        },
+                        child: Text(localization.refresh),
+                      ),
+                    ],
+                  ),
+                );
+              }
+                      
+              // Show orders list with pull-to-refresh
+              return RefreshIndicator(
+                onRefresh: () async {
+                  // Manual refresh orders
+                  final orderProvider = Provider.of<OrderStreamProvider>(context, listen: false);
+                  await orderProvider.refreshOrders();
+                },
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(top: 8),
+                  itemCount: orders.length,
+                  itemBuilder: (context, index) {
+                    final order = orders[index];
+                    Color statusColor;
+                    IconData statusIcon;
+                    String localizedStatus;
 
-              return Dismissible(
+                    switch (order.status.toLowerCase()) {
+                      case 'pending':
+                        statusColor = Colors.orange;
+                        statusIcon = Icons.hourglass_top_rounded;
+                        localizedStatus = localization.pending;
+                        break;
+                      case 'processing':
+                        statusColor = Colors.blueAccent;
+                        statusIcon = Icons.sync_rounded;
+                        localizedStatus = localization.processing;
+                        break;
+                      case 'shipped':
+                        statusColor = Colors.green;
+                        statusIcon = Icons.local_shipping_rounded;
+                        localizedStatus = localization.shipped;
+                        break;
+                      case 'delivered':
+                        statusColor = Colors.green;
+                        statusIcon = Icons.check_circle_rounded;
+                        localizedStatus = localization.delivered;
+                        break;
+                      case 'cancelled':
+                        statusColor = Colors.redAccent;
+                        statusIcon = Icons.cancel_rounded;
+                        localizedStatus = localization.cancelled;
+                        break;
+                      default:
+                        statusColor = Colors.grey;
+                        statusIcon = Icons.info_outline_rounded;
+                        localizedStatus = order.status;
+                    }
+
+                    return Dismissible(
                 key: Key('order-${order.id}'),
                 direction: DismissDirection.endToStart,
                 confirmDismiss: (direction) async {
@@ -109,7 +181,7 @@ class _OrdersPageState extends State<OrdersPage> {
                   );
                 },
                 onDismissed: (direction) async {
-                  // Delete the order
+                  // Delete the order using provider
                   final success = await orderProvider.deleteOrder(order.id);
                   if (success && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -119,8 +191,8 @@ class _OrdersPageState extends State<OrdersPage> {
                         action: SnackBarAction(
                           label: localization.undo,
                           onPressed: () {
-                            // Ideally would have an "undo" functionality
-                            orderProvider.fetchOrders();
+                            // Refresh to show all orders
+                            orderProvider.refreshOrders();
                           },
                         ),
                       ),
@@ -132,8 +204,8 @@ class _OrdersPageState extends State<OrdersPage> {
                         backgroundColor: Colors.red,
                       ),
                     );
-                    // Refresh to show the item again
-                    orderProvider.fetchOrders();
+                    // Refresh to restore the order if deletion failed
+                    orderProvider.refreshOrders();
                   }
                 },
                 background: Container(
@@ -162,7 +234,7 @@ class _OrdersPageState extends State<OrdersPage> {
                         Row(
                           children: [
                             CircleAvatar(
-                              backgroundColor: statusColor.withOpacity(0.15),
+                              backgroundColor: statusColor.withValues(alpha: 0.15),
                               child: Icon(statusIcon, color: statusColor),
                             ),
                             const SizedBox(width: 12),
@@ -290,7 +362,7 @@ class _OrdersPageState extends State<OrdersPage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.12),
+                                color: statusColor.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -322,6 +394,9 @@ class _OrdersPageState extends State<OrdersPage> {
                       ],
                     ),
                   ),
+                ),
+                    );
+                  },
                 ),
               );
             },

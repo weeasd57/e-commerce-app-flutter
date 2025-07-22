@@ -6,7 +6,7 @@ import 'package:ecommerce/pages/checkout_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -69,64 +69,64 @@ class CartPage extends StatelessWidget {
                                     color: Colors.grey[200],
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
-                                  child: item.imageUrl.isNotEmpty
-                                      ? CachedNetworkImage(
-                                          imageUrl: item.imageUrl,
-                                          width: 50,
-                                          height: 50,
-                                          fit: BoxFit.cover,
-                                          memCacheWidth: 100, // تحسين الذاكرة
-                                          memCacheHeight: 100,
-                                          cacheKey: 'cart_${item.id}_${item.imageUrl.hashCode}',
-                                          placeholder: (context, url) => Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[200],
-                                              borderRadius: BorderRadius.circular(8.0),
-                                            ),
-                                            child: Center(
-                                              child: SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                                      Theme.of(context).primaryColor),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          errorWidget: (context, url, error) {
-                                            debugPrint('Error loading cart image: $url - Error: $error');
-                                            return Container(
-                                              width: 50,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey[300],
-                                                borderRadius: BorderRadius.circular(8.0),
-                                              ),
-                                              child: Icon(
-                                                Icons.image_not_supported,
-                                                color: Colors.grey[600],
-                                                size: 20,
-                                              ),
-                                            );
-                                          },
-                                        )
-                                      : Container(
-                                          width: 50,
-                                          height: 50,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[300],
-                                            borderRadius: BorderRadius.circular(8.0),
-                                          ),
-                                          child: Icon(
-                                            Icons.shopping_bag,
-                                            color: Colors.grey[600],
-                                            size: 20,
+                                  child: OfflineCachedImage(
+                                    imageUrl: item.imageUrl.isNotEmpty 
+                                        ? item.imageUrl 
+                                        : '',
+                                    width: 50,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                    memCacheWidth: 100,
+                                    memCacheHeight: 100,
+                                    cacheKey: 'cart_${item.id}_${item.imageUrl.isNotEmpty ? item.imageUrl.hashCode : 0}',
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    showOfflineIndicator: false,
+                                    placeholder: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(
+                                                Theme.of(context).primaryColor),
                                           ),
                                         ),
+                                      ),
+                                    ),
+                                    errorWidget: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Icon(
+                                        Icons.shopping_bag,
+                                        color: Colors.grey[600],
+                                        size: 20,
+                                      ),
+                                    ),
+                                    offlineWidget: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Icon(
+                                        Icons.shopping_bag,
+                                        color: Colors.grey[600],
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                               title: Text(item.name),

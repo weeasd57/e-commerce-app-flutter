@@ -413,4 +413,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeFromWishlistAction => 'Remove from Wishlist';
+
+  @override
+  String get loadingOrders => 'Loading orders...';
+
+  @override
+  String get errorLoadingOrders => 'Error loading orders';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get hideError => 'Hide Error';
+
+  @override
+  String get refresh => 'Refresh';
 }

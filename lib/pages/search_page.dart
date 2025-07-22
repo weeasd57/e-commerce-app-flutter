@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
-import 'package:ecommerce/providers/flutter_stream_product_provider.dart';
+import 'package:ecommerce/providers/product_provider.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 
@@ -38,7 +38,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
-    final productProvider = Provider.of<FlutterStreamProductProvider>(context);
+    final productProvider = Provider.of<ProductProvider>(context);
 
     // Combine hot products and new products for popular searches
     final List<String> popularSearches = [
@@ -67,7 +67,7 @@ class _SearchPageState extends State<SearchPage> {
             hintText: localization.search,
             border: InputBorder.none,
             hintStyle:
-                TextStyle(color: Theme.of(context).hintColor.withOpacity(0.7)),
+                TextStyle(color: Theme.of(context).hintColor.withValues(alpha: 0.7)),
           ),
           style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
           cursorColor: Theme.of(context).primaryColor,

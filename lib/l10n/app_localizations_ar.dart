@@ -410,4 +410,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get removeFromWishlistAction => 'إزالة من المفضلة';
+
+  @override
+  String get loadingOrders => 'جاري تحميل الطلبات...';
+
+  @override
+  String get errorLoadingOrders => 'خطأ في تحميل الطلبات';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get hideError => 'إخفاء الخطأ';
+
+  @override
+  String get refresh => 'تحديث';
 }

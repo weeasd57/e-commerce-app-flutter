@@ -8,6 +8,7 @@ import 'package:ecommerce/providers/wishlist_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/providers/color_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final Product product;
@@ -247,7 +248,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           borderRadius: BorderRadius.circular(12.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -267,31 +268,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   // بناء صورة واحدة
   Widget _buildSingleImage(String imageUrl) {
-    return CachedNetworkImage(
+    return OfflineCachedImage(
       imageUrl: imageUrl,
       width: double.infinity,
+      height: double.infinity,
       fit: BoxFit.cover,
-      // تحسين أداء الصور
       memCacheWidth: 600,
       memCacheHeight: 600,
       cacheKey: 'product_detail_${widget.product.id}_${imageUrl.hashCode}',
       fadeInDuration: const Duration(milliseconds: 300),
       fadeOutDuration: const Duration(milliseconds: 300),
-      placeholder: (context, url) => Container(
-        color: Colors.grey[100],
-        child: Center(
-          child: CircularProgressIndicator(
-            strokeWidth: 2.0,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).primaryColor,
-            ),
-          ),
-        ),
-      ),
-      errorWidget: (context, url, error) {
-        debugPrint('Error loading product detail image: $url - Error: $error');
-        return _buildPlaceholderImage();
-      },
+      borderRadius: BorderRadius.circular(12.0),
+      showOfflineIndicator: true,
+      errorWidget: _buildPlaceholderImage(),
     );
   }
 
@@ -308,21 +297,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () => _showImageViewer(index),
-          child: CachedNetworkImage(
+          child: OfflineCachedImage(
             imageUrl: widget.product.imageUrls[index],
             width: double.infinity,
+            height: double.infinity,
             fit: BoxFit.cover,
-            placeholder: (context, url) => Container(
-              color: Colors.grey[100],
-              child: Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-            ),
-            errorWidget: (context, url, error) => _buildPlaceholderImage(),
+            memCacheWidth: 600,
+            memCacheHeight: 600,
+            cacheKey: 'product_pageview_${widget.product.id}_${widget.product.imageUrls[index].hashCode}',
+            fadeInDuration: const Duration(milliseconds: 300),
+            fadeOutDuration: const Duration(milliseconds: 300),
+            borderRadius: BorderRadius.circular(12.0),
+            showOfflineIndicator: true,
+            errorWidget: _buildPlaceholderImage(),
           ),
         );
       },
@@ -400,7 +387,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Theme.of(context).primaryColor.withOpacity(0.3),
+                          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -409,10 +396,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(6),
-                child: CachedNetworkImage(
+                child: OfflineCachedImage(
                   imageUrl: widget.product.imageUrls[index],
+                  width: 70,
+                  height: 70,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
+                  memCacheWidth: 150,
+                  memCacheHeight: 150,
+                  cacheKey: 'product_thumb_${widget.product.id}_${widget.product.imageUrls[index].hashCode}',
+                  fadeInDuration: const Duration(milliseconds: 200),
+                  fadeOutDuration: const Duration(milliseconds: 200),
+                  borderRadius: BorderRadius.circular(6),
+                  showOfflineIndicator: false,
+                  placeholder: Container(
                     color: Colors.grey[200],
                     child: Icon(
                       Icons.image,
@@ -420,7 +416,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       size: 20,
                     ),
                   ),
-                  errorWidget: (context, url, error) => Container(
+                  errorWidget: Container(
                     color: Colors.grey[200],
                     child: Icon(
                       Icons.broken_image,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce/models/product.dart';
@@ -149,6 +150,12 @@ class CacheProvider {
   
   Future<File?> getCachedImageFile(String imageUrl) async {
     try {
+      // على الويب، لا يمكن الوصول إلى ملفات النظام
+      if (kIsWeb) {
+        debugPrint('🌐 File access not available on web platform');
+        return null;
+      }
+      
       final cacheManager = DefaultCacheManager();
       final fileInfo = await cacheManager.getFileFromCache(imageUrl);
       

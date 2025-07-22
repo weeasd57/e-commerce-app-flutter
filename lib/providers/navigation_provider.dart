@@ -4,7 +4,6 @@ import '../pages/home_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/profile_page.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
-import 'package:ecommerce/providers/stream_providers.dart';
 
 class NavigationProvider extends ChangeNotifier {
   int _currentIndex = 0;
@@ -65,13 +64,7 @@ class NavigationProvider extends ChangeNotifier {
   }
 
   void setPage(int index, {BuildContext? context}) {
-    int previousIndex = _currentIndex;
     _currentIndex = index;
-    
-    // إذا انتقل المستخدم إلى الصفحة الرئيسية أو صفحة الفئات، تحديث الفئات إذا لزم الأمر
-    if (context != null && (index == 0 || index == 1) && previousIndex != index) {
-      _refreshCategoriesIfNeeded(context);
-    }
     
     notifyListeners();
   }
@@ -81,13 +74,5 @@ class NavigationProvider extends ChangeNotifier {
     setPage(index);
   }
   
-  // تحديث الفئات تلقائياً عند العودة للصفحة الرئيسية
-  void _refreshCategoriesIfNeeded(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) {
-        // تحديث البيانات من خلال Stream Providers
-        CategoriesStreamProvider.refresh();
-      }
-    });
-  }
+
 }

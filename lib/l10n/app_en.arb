@@ -127,5 +127,10 @@
     "wishlistTitle": "Wishlist",
     "noWishlistItems": "No items in your wishlist",
     "addToWishlistAction": "Add to Wishlist",
-    "removeFromWishlistAction": "Remove from Wishlist"
+    "removeFromWishlistAction": "Remove from Wishlist",
+    "loadingOrders": "Loading orders...",
+    "errorLoadingOrders": "Error loading orders",
+    "retry": "Retry",
+    "hideError": "Hide Error",
+    "refresh": "Refresh"
 }

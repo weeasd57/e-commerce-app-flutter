@@ -127,5 +127,10 @@
     "wishlistTitle": "المفضلة",
     "noWishlistItems": "لا توجد منتجات في المفضلة",
     "addToWishlistAction": "إضافة إلى المفضلة",
-    "removeFromWishlistAction": "إزالة من المفضلة"
+    "removeFromWishlistAction": "إزالة من المفضلة",
+    "loadingOrders": "جاري تحميل الطلبات...",
+    "errorLoadingOrders": "خطأ في تحميل الطلبات",
+    "retry": "إعادة المحاولة",
+    "hideError": "إخفاء الخطأ",
+    "refresh": "تحديث"
 }

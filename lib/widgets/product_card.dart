@@ -7,7 +7,7 @@ import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/pages/product_details_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -58,38 +58,23 @@ class ProductCard extends StatelessWidget {
                         child: SizedBox.expand(
                           child: Hero(
                             tag: 'productImage_${product.id}',
-                            child: product.imageUrls.isNotEmpty
-                                ? CachedNetworkImage(
-                                    imageUrl: product.imageUrls.first,
-                                    fit: BoxFit.cover,
-                                    // تحسين الصور للأداء والذاكرة
-                                    memCacheWidth: 300,
-                                    memCacheHeight: 300,
-                                    // مفتاح تخزين مؤقت فريد لكل منتج
-                                    cacheKey: 'product_${product.id}_${product.imageUrls.first.hashCode}',
-                                    fadeInDuration: const Duration(milliseconds: 200),
-                                    fadeOutDuration: const Duration(milliseconds: 200),
-                                    placeholder: (context, url) => Center(
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.0,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                            Theme.of(context).primaryColor),
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) {
-                                      debugPrint('Error loading product image: $url - Error: $error');
-                                      return Container(
-                                        color: Colors.grey[300],
-                                        child: Icon(Icons.image_not_supported,
-                                            color: Colors.grey[600]),
-                                      );
-                                    },
-                                  )
-                                : Container(
-                                    color: Colors.grey[300],
-                                    child: Icon(Icons.image_not_supported,
-                                        color: Colors.grey[600]),
-                                  ),
+                            child: OfflineCachedImage(
+                              imageUrl: product.imageUrls.isNotEmpty 
+                                  ? product.imageUrls.first 
+                                  : '',
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                              memCacheWidth: 300,
+                              memCacheHeight: 300,
+                              cacheKey: 'product_${product.id}_${product.imageUrls.isNotEmpty ? product.imageUrls.first.hashCode : 0}',
+                              fadeInDuration: const Duration(milliseconds: 200),
+                              fadeOutDuration: const Duration(milliseconds: 200),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(12)
+                              ),
+                              showOfflineIndicator: true,
+                            ),
                           ),
                         ),
                       ),
@@ -175,7 +160,7 @@ class ProductCard extends StatelessWidget {
                               product.age!,
                               key: ValueKey<String>(product.age!),
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withOpacity(0.7),
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
                                 fontSize: isSmall ? 9 : 11,
                               ),
                             ),

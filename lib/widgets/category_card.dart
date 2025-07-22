@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce/models/category.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image.dart';
 
 class CategoryCard extends StatelessWidget {
   final Category category;
@@ -20,7 +20,7 @@ class CategoryCard extends StatelessWidget {
         width: 100,
         margin: const EdgeInsets.only(right: 10),
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -31,27 +31,32 @@ class CategoryCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
                 ),
-                child: category.imageUrl != null
-                    ? ClipRRect(
-                        borderRadius:
-                            const BorderRadius.vertical(top: Radius.circular(10)),
-                        child: CachedNetworkImage(
-                          imageUrl: category.imageUrl!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          placeholder: (context, url) => Center(
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Theme.of(context).primaryColor),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => _buildDefaultIcon(),
-                        ),
-                      )
-                    : _buildDefaultIcon(),
+                child: ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(10)),
+                  child: OfflineCachedImage(
+                    imageUrl: category.imageUrl ?? '',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    memCacheWidth: 200,
+                    memCacheHeight: 200,
+                    cacheKey: 'category_${category.id}_${category.imageUrl?.hashCode ?? 0}',
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                    showOfflineIndicator: false,
+                    placeholder: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    errorWidget: _buildDefaultIcon(),
+                    offlineWidget: _buildDefaultIcon(),
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -131,8 +136,8 @@ class CategoryCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Theme.of(context).primaryColor.withOpacity(0.3),
-                Theme.of(context).primaryColor.withOpacity(0.1),
+                Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                Theme.of(context).primaryColor.withValues(alpha: 0.1),
               ],
             ),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),

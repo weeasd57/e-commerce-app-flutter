@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/widgets/category_card.dart';
 import 'package:provider/provider.dart';
-import 'package:ecommerce/providers/flutter_stream_product_provider.dart';
-import 'package:ecommerce/providers/flutter_stream_category_provider.dart';
+import 'package:ecommerce/providers/product_provider.dart';
+import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
@@ -30,39 +30,28 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // استخدام addPostFrameCallback لتجنب تحديث الحالة أثناء البناء
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
-      // بدء الـ real-time updates
-      _startRealTimeUpdates();
     });
   }
 
   Future<void> _loadData() async {
     if (!mounted) return;
-    // تحميل البيانات فقط إذا كانت فارغة أو قديمة
-    await Future.wait([
-      context.read<FlutterStreamProductProvider>().fetchProducts(),
-      context.read<FlutterStreamCategoryProvider>().fetchCategories(),
-    ]);
+    // Fetch products initially if needed
+    await context.read<ProductProvider>().fetchProducts();
+    await context.read<CategoryProvider>().fetchCategories();
   }
 
   Future<void> _refreshData() async {
-    // تحميل البيانات بالقوة عند السحب للتحديث
+    // Refresh data
     await Future.wait([
-      context.read<FlutterStreamProductProvider>().fetchProducts(forceRefresh: true),
-      context.read<FlutterStreamCategoryProvider>().fetchCategories(forceRefresh: true),
+      context.read<ProductProvider>().refresh(),
+      context.read<CategoryProvider>().refresh(),
     ]);
-  }
-
-  void _startRealTimeUpdates() {
-    final productProvider = context.read<FlutterStreamProductProvider>();
-    productProvider.fetchProducts();
   }
 
   @override
   void dispose() {
-    // No need to stop real-time updates for stream providers
     super.dispose();
   }
 
@@ -79,8 +68,8 @@ class _HomePageState extends State<HomePage> {
           constraints: BoxConstraints(
             maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
           ),
-          child: Consumer2<FlutterStreamProductProvider, FlutterStreamCategoryProvider>(
-            builder: (context, productProvider, categoryProvider, child) {
+          child: Consumer<ProductProvider>(
+            builder: (context, productProvider, child) {
               if (productProvider.isLoading && productProvider.products.isEmpty) {
                 return Center(
                   child: Column(
@@ -93,155 +82,168 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               }
-              return CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: Responsive.scaffoldPadding(context),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: productProvider.products.isEmpty
-                                ? Container(
-                                    height: 200,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      localization.noProductsForCarousel,
-                                      style: Theme.of(context).textTheme.titleMedium,
-                                    ),
-                                  )
-                                : CarouselSlider(
-                                    options: CarouselOptions(
-                                      height: Responsive.isDesktop(context) ? 300 : 200,
-                                      autoPlay: true,
-                                      autoPlayInterval: const Duration(seconds: 5),
-                                      viewportFraction: 1.0,
-                                    ),
-                                    items: productProvider.products
-                                        .map((product) => _buildCarouselItem(product, currencyProvider))
-                                        .toList(),
-                                  ),
-                          ),
-                          Text(
-                            localization.newArrivals,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            localization.categories,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 16),
-                          Consumer<FlutterStreamCategoryProvider>(
-                            builder: (context, categoryProvider, child) {
-                              if (categoryProvider.isLoading) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              
-                              if (categoryProvider.categories.isEmpty) {
-                                return Container(
-                                  height: 120,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    localization.noCategoriesAvailable,
-                                    style: Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                );
-                              }
-                              
-                              return SizedBox(
-                                height: Responsive.isDesktop(context)
-                                    ? 150
-                                    : Responsive.isTablet(context)
-                                        ? 130
-                                        : 120,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: categoryProvider.categories.length,
-                                  itemBuilder: (context, index) {
-                                    final category =
-                                        categoryProvider.categories[index];
-                                    return CategoryCard(
-                                      category: category,
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          CustomPageRoute(
-                                            child: CategoryProductsPage(
-                                                category: category),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              
+              if (productProvider.hasError && productProvider.products.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Error: ${productProvider.errorMessage}'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => productProvider.fetchProducts(forceRefresh: true),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final products = productProvider.products;
+
+              return Consumer<CategoryProvider>(
+                builder: (context, categoryProvider, child) {
+                  final categories = categoryProvider.categories;
+
+                  return CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: Responsive.scaffoldPadding(context),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: products.isEmpty
+                                    ? Container(
+                                        height: 200,
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          localization.noProductsForCarousel,
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                        ),
+                                      )
+                                    : CarouselSlider(
+                                        options: CarouselOptions(
+                                          height: Responsive.isDesktop(context) ? 300 : 200,
+                                          autoPlay: true,
+                                          autoPlayInterval: const Duration(seconds: 5),
+                                          viewportFraction: 1.0,
+                                        ),
+                                        items: products
+                                            .map((product) => _buildCarouselItem(product, currencyProvider))
+                                            .toList(),
+                                      ),
+                              ),
                               Text(
-                                localization.allProducts,
+                                localization.newArrivals,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
-                              TextButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    _isFilterExpanded = !_isFilterExpanded;
-                                  });
-                                },
-                                icon: Icon(_isFilterExpanded
-                                    ? Icons.filter_list_off
-                                    : Icons.filter_list),
-                                label: Text(localization.filters),
+                              const SizedBox(height: 24),
+                              Text(
+                                localization.categories,
+                                style: Theme.of(context).textTheme.titleLarge,
                               ),
+                              const SizedBox(height: 16),
+                              categories.isEmpty
+                                  ? Container(
+                                      height: 120,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        localization.noCategoriesAvailable,
+                                        style: Theme.of(context).textTheme.titleMedium,
+                                      ),
+                                    )
+                                  : SizedBox(
+                                      height: Responsive.isDesktop(context)
+                                          ? 150
+                                          : Responsive.isTablet(context)
+                                              ? 130
+                                              : 120,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: categories.length,
+                                        itemBuilder: (context, index) {
+                                          final category = categories[index];
+                                          return CategoryCard(
+                                            category: category,
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                CustomPageRoute(
+                                                  child: CategoryProductsPage(
+                                                      category: category),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ),
+                              const SizedBox(height: 24),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    localization.allProducts,
+                                    style: Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        _isFilterExpanded = !_isFilterExpanded;
+                                      });
+                                    },
+                                    icon: Icon(_isFilterExpanded
+                                        ? Icons.filter_list_off
+                                        : Icons.filter_list),
+                                    label: Text(localization.filters),
+                                  ),
+                                ],
+                              ),
+                              if (_isFilterExpanded)
+                                _buildFilterSection(
+                                    context, localization, productProvider),
                             ],
                           ),
-                          if (_isFilterExpanded)
-                            _buildFilterSection(
-                                context, localization, productProvider),
-                        ],
-                      ),
-                    ),
-                  ),
-                  productProvider.products.isEmpty
-                      ? SliverToBoxAdapter(
-                          child: Container(
-                            height: 200,
-                            alignment: Alignment.center,
-                            child: Text(
-                              localization.noProductsAvailable,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
-                        )
-                      : SliverPadding(
-                          padding: Responsive.scaffoldPadding(context),
-                          sliver: SliverGrid(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: Responsive.gridCrossAxisCount(context),
-                              childAspectRatio: 0.7,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                            ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final product = productProvider.products[index];
-                                return ProductCard(
-                                  product: product,
-                                  isOnSale: product.onSale,
-                                );
-                              },
-                              childCount: productProvider.products.length,
-                            ),
-                          ),
                         ),
-                ],
+                      ),
+                      products.isEmpty
+                          ? SliverToBoxAdapter(
+                              child: Container(
+                                height: 200,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  localization.noProductsAvailable,
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                              ),
+                            )
+                          : SliverPadding(
+                              padding: Responsive.scaffoldPadding(context),
+                              sliver: SliverGrid(
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: Responsive.gridCrossAxisCount(context),
+                                  childAspectRatio: 0.7,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                ),
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final product = products[index];
+                                    return ProductCard(
+                                      product: product,
+                                      isOnSale: product.onSale,
+                                    );
+                                  },
+                                  childCount: products.length,
+                                ),
+                              ),
+                            ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -255,7 +257,7 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context) {
         final imageProvider = (product.imageUrls.isNotEmpty)
             ? CachedNetworkImageProvider(product.imageUrls.first)
-            : const AssetImage('assets/images/logo.png') as ImageProvider;
+            : const AssetImage("assets/images/logo.png") as ImageProvider;
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -286,7 +288,7 @@ class _HomePageState extends State<HomePage> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                   ],
                 ),
               ),
@@ -304,9 +306,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // عرض معلومات السعر في الـ Carousel
                   if (product.hasDiscount) ...[
-                    // السعر الأصلي مشطوب
                     Text(
                       '${product.price.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
                       style: const TextStyle(
@@ -316,7 +316,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    // السعر النهائي بعد التخفيض
                     Row(
                       children: [
                         Text(
@@ -346,7 +345,6 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ] else
-                    // السعر العادي بدون تخفيض
                     Text(
                       '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
                       style: const TextStyle(
@@ -365,7 +363,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFilterSection(BuildContext context,
-      AppLocalizations localization, FlutterStreamProductProvider productProvider) {
+      AppLocalizations localization, ProductProvider productProvider) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -374,7 +372,7 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -474,3 +472,5 @@ class _HomePageState extends State<HomePage> {
   }
 
 }
+
+

@@ -865,6 +865,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove from Wishlist'**
   String get removeFromWishlistAction;
+
+  /// No description provided for @loadingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading orders...'**
+  String get loadingOrders;
+
+  /// No description provided for @errorLoadingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading orders'**
+  String get errorLoadingOrders;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @hideError.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Error'**
+  String get hideError;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
 }
 
 class _AppLocalizationsDelegate

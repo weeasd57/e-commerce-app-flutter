@@ -42,7 +42,7 @@ class ProfilePage extends StatelessWidget {
                   CircleAvatar(
                     radius: 50,
                     backgroundColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     backgroundImage: user.photoURL != null
                         ? CachedNetworkImageProvider(user.photoURL!)
                         : null,

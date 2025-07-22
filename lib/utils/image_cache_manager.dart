@@ -1,7 +1,8 @@
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'dart:io' show Directory, File;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// مدير التخزين المؤقت المخصص للصور
 class CustomImageCacheManager extends CacheManager with ImageCacheManager {
@@ -61,6 +62,12 @@ class CustomImageCacheManager extends CacheManager with ImageCacheManager {
   /// الحصول على حجم التخزين المؤقت
   Future<int> getCacheSize() async {
     try {
+      // على الويب، لا يمكننا الوصول إلى نظام الملفات
+      if (kIsWeb) {
+        debugPrint('حساب حجم التخزين المؤقت غير متوفر على الويب');
+        return 0;
+      }
+      
       final appDir = await getTemporaryDirectory();
       final cacheDir = Directory('${appDir.path}/$key');
       
@@ -117,15 +124,23 @@ class CartImageManager {
   /// التحقق من حالة التخزين المؤقت
   static Future<Map<String, dynamic>> getCacheStatus() async {
     final cacheSize = await _cacheManager.getCacheSize();
-    final appDir = await getTemporaryDirectory();
-    final cacheDir = Directory('${appDir.path}/${CustomImageCacheManager.key}');
     int filesCount = 0;
     
-    if (await cacheDir.exists()) {
-      await for (var entity in cacheDir.list(recursive: true)) {
-        if (entity is File) {
-          filesCount++;
+    // على الويب، لا يمكننا الوصول إلى نظام الملفات
+    if (!kIsWeb) {
+      try {
+        final appDir = await getTemporaryDirectory();
+        final cacheDir = Directory('${appDir.path}/${CustomImageCacheManager.key}');
+        
+        if (await cacheDir.exists()) {
+          await for (var entity in cacheDir.list(recursive: true)) {
+            if (entity is File) {
+              filesCount++;
+            }
+          }
         }
+      } catch (e) {
+        debugPrint('خطأ في حساب عدد الملفات: $e');
       }
     }
     
