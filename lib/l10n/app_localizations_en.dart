@@ -428,4 +428,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get changeAppColorTitle => 'Change App Color';
+
+  @override
+  String get solidColors => 'Solid Colors';
+
+  @override
+  String get gradientColors => 'Gradient Colors';
+
+  @override
+  String get colorChangedSuccessfully => 'Color changed successfully';
+
+  @override
+  String get gradientChangedSuccessfully => 'Gradient changed successfully';
 }

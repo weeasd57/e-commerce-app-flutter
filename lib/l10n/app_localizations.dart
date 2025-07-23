@@ -895,6 +895,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
+
+  /// No description provided for @changeAppColorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change App Color'**
+  String get changeAppColorTitle;
+
+  /// No description provided for @solidColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Solid Colors'**
+  String get solidColors;
+
+  /// No description provided for @gradientColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient Colors'**
+  String get gradientColors;
+
+  /// No description provided for @colorChangedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Color changed successfully'**
+  String get colorChangedSuccessfully;
+
+  /// No description provided for @gradientChangedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient changed successfully'**
+  String get gradientChangedSuccessfully;
 }
 
 class _AppLocalizationsDelegate

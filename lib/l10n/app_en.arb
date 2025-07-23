@@ -132,5 +132,10 @@
     "errorLoadingOrders": "Error loading orders",
     "retry": "Retry",
     "hideError": "Hide Error",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "changeAppColorTitle": "Change App Color",
+    "solidColors": "Solid Colors",
+    "gradientColors": "Gradient Colors",
+    "colorChangedSuccessfully": "Color changed successfully",
+    "gradientChangedSuccessfully": "Gradient changed successfully"
 }

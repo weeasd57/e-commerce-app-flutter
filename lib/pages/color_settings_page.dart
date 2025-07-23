@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/color_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class ColorSettingsPage extends StatelessWidget {
   const ColorSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+    
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('تغيير لون التطبيق'),
+          title: Text(localization.changeAppColorTitle),
           centerTitle: true,
           bottom: TabBar(
             labelColor: Theme.of(context).primaryColor,
@@ -24,12 +27,12 @@ class ColorSettingsPage extends StatelessWidget {
             unselectedLabelStyle: const TextStyle(
               fontSize: 16,
             ),
-            tabs: const [
+            tabs: [
               Tab(
-                child: Text('الألوان الأساسية'),
+                child: Text(localization.solidColors),
               ),
               Tab(
-                child: Text('التدرجات اللونية'),
+                child: Text(localization.gradientColors),
               ),
             ],
           ),
@@ -57,7 +60,7 @@ class ColorSettingsPage extends StatelessWidget {
                         colorProvider.setColor(option);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text('تم تغيير اللون بنجاح'),
+                            content: Text(localization.colorChangedSuccessfully),
                             backgroundColor: option.solidColor,
                             duration: const Duration(seconds: 1),
                           ),
@@ -96,7 +99,7 @@ class ColorSettingsPage extends StatelessWidget {
                         colorProvider.setColor(option);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text('تم تغيير التدرج اللوني بنجاح'),
+                            content: Text(localization.gradientChangedSuccessfully),
                             duration: const Duration(seconds: 1),
                           ),
                         );

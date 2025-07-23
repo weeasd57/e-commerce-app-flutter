@@ -132,5 +132,10 @@
     "errorLoadingOrders": "خطأ في تحميل الطلبات",
     "retry": "إعادة المحاولة",
     "hideError": "إخفاء الخطأ",
-    "refresh": "تحديث"
+    "refresh": "تحديث",
+    "changeAppColorTitle": "تغيير لون التطبيق",
+    "solidColors": "الألوان الأساسية",
+    "gradientColors": "التدرجات اللونية",
+    "colorChangedSuccessfully": "تم تغيير اللون بنجاح",
+    "gradientChangedSuccessfully": "تم تغيير التدرج اللوني بنجاح"
 }

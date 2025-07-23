@@ -425,4 +425,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get refresh => 'تحديث';
+
+  @override
+  String get changeAppColorTitle => 'تغيير لون التطبيق';
+
+  @override
+  String get solidColors => 'الألوان الأساسية';
+
+  @override
+  String get gradientColors => 'التدرجات اللونية';
+
+  @override
+  String get colorChangedSuccessfully => 'تم تغيير اللون بنجاح';
+
+  @override
+  String get gradientChangedSuccessfully => 'تم تغيير التدرج اللوني بنجاح';
 }
