@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/wishlist_provider.dart';
-import 'package:ecommerce/providers/product_provider.dart';
+import 'package:ecommerce/providers/enhanced_product_provider.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 
@@ -15,7 +15,7 @@ class WishlistPage extends StatelessWidget {
         title: Text(AppLocalizations.of(context)!.wishlistTitle),
         centerTitle: true,
       ),
-      body: Consumer2<WishlistProvider, ProductProvider>(
+      body: Consumer2<WishlistProvider, EnhancedProductProvider>(
         builder: (context, wishlistProvider, productProvider, _) {
           if (wishlistProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());

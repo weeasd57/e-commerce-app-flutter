@@ -6,7 +6,7 @@ import 'package:ecommerce/pages/checkout_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
-import 'package:ecommerce/widgets/offline_cached_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image_provider.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});

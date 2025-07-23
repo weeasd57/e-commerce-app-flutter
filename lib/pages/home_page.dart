@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:ecommerce/widgets/product_card.dart';
 import 'package:ecommerce/widgets/category_card.dart';
 import 'package:provider/provider.dart';
-import 'package:ecommerce/providers/product_provider.dart';
+import 'package:ecommerce/providers/enhanced_product_provider.dart';
 import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/pages/category_products_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image_provider.dart';
 import 'package:ecommerce/models/product.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce/pages/product_details_page.dart';
@@ -38,14 +38,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadData() async {
     if (!mounted) return;
     // Fetch products initially if needed
-    await context.read<ProductProvider>().fetchProducts();
+    await context.read<EnhancedProductProvider>().fetchProducts();
     await context.read<CategoryProvider>().fetchCategories();
   }
 
   Future<void> _refreshData() async {
     // Refresh data
     await Future.wait([
-      context.read<ProductProvider>().refresh(),
+      context.read<EnhancedProductProvider>().refresh(),
       context.read<CategoryProvider>().refresh(),
     ]);
   }
@@ -68,7 +68,7 @@ class _HomePageState extends State<HomePage> {
           constraints: BoxConstraints(
             maxWidth: Responsive.isDesktop(context) ? 1200 : double.infinity,
           ),
-          child: Consumer<ProductProvider>(
+          child: Consumer<EnhancedProductProvider>(
             builder: (context, productProvider, child) {
               if (productProvider.isLoading && productProvider.products.isEmpty) {
                 return Center(
@@ -113,37 +113,113 @@ class _HomePageState extends State<HomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // شعار الترحيب
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                                      Theme.of(context).primaryColor.withValues(alpha: 0.05),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.shopping_bag,
+                                      size: 32,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+'مرحباً بك',
+                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+'اكتشف أحدث المنتجات والعروض المميزة',
+                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              
+                              // معرض الصور المنزلق
                               Padding(
-                                padding: const EdgeInsets.all(24),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 child: products.isEmpty
                                     ? Container(
                                         height: 200,
                                         alignment: Alignment.center,
-                                        child: Text(
-                                          localization.noProductsForCarousel,
-                                          style: Theme.of(context).textTheme.titleMedium,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[100],
+                                          borderRadius: BorderRadius.circular(16),
+                                          border: Border.all(color: Colors.grey[300]!),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.inventory_2_outlined,
+                                              size: 48,
+                                              color: Colors.grey[400],
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              localization.noProductsForCarousel,
+                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                color: Colors.grey[600],
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
                                         ),
                                       )
                                     : CarouselSlider(
                                         options: CarouselOptions(
-                                          height: Responsive.isDesktop(context) ? 300 : 200,
+                                          height: Responsive.isDesktop(context) ? 300 : 220,
                                           autoPlay: true,
-                                          autoPlayInterval: const Duration(seconds: 5),
-                                          viewportFraction: 1.0,
+                                          autoPlayInterval: const Duration(seconds: 4),
+                                          autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                                          viewportFraction: 0.9,
+                                          enlargeCenterPage: true,
+                                          enableInfiniteScroll: true,
                                         ),
-                                        items: products
+                                        items: products.take(5) // عرض أول 5 منتجات فقط
                                             .map((product) => _buildCarouselItem(product, currencyProvider))
                                             .toList(),
                                       ),
                               ),
+                              
+                              const SizedBox(height: 32),
                               Text(
                                 localization.newArrivals,
-                                style: Theme.of(context).textTheme.titleLarge,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               const SizedBox(height: 24),
                               Text(
                                 localization.categories,
-                                style: Theme.of(context).textTheme.titleLarge,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               const SizedBox(height: 16),
                               categories.isEmpty
@@ -187,7 +263,9 @@ class _HomePageState extends State<HomePage> {
                                 children: [
                                   Text(
                                     localization.allProducts,
-                                    style: Theme.of(context).textTheme.titleLarge,
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   TextButton.icon(
                                     onPressed: () {
@@ -255,9 +333,6 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCarouselItem(Product product, CurrencyProvider currencyProvider) {
     return Builder(
       builder: (BuildContext context) {
-        final imageProvider = (product.imageUrls.isNotEmpty)
-            ? CachedNetworkImageProvider(product.imageUrls.first)
-            : const AssetImage("assets/images/logo.png") as ImageProvider;
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -268,91 +343,180 @@ class _HomePageState extends State<HomePage> {
             );
           },
           child: Container(
-            width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.symmetric(horizontal: 5.0),
+            margin: const EdgeInsets.symmetric(horizontal: 8.0),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              image: DecorationImage(
-                image: imageProvider,
-                fit: BoxFit.cover,
-                onError: (error, stackTrace) {
-                  debugPrint('Error loading image: $error');
-                },
-              ),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.7),
-                  ],
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
                 ),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
                 children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (product.hasDiscount) ...[
-                    Text(
-                      '${product.price.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '${product.discountPercentage.toStringAsFixed(0)}% OFF',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                  // صورة المنتج
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: product.imageUrls.isNotEmpty
+                        ? OfflineCachedImage(
+                            imageUrl: product.imageUrls.first,
+                            fit: BoxFit.cover,
+                            borderRadius: BorderRadius.circular(20),
+                            errorWidget: Container(
+                              color: Colors.grey[200],
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.shopping_bag,
+                              size: 50,
+                              color: Colors.grey,
                             ),
                           ),
+                  ),
+                  
+                  // تدرج شفاف في الأسفل
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.8),
+                          ],
                         ),
-                      ],
-                    ),
-                  ] else
-                    Text(
-                      '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            product.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          
+                          // معلومات السعر
+                          if (product.hasDiscount) ...[
+                            Row(
+                              children: [
+                                // السعر الأصلي مشطوب
+                                Text(
+                                  '${product.price.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                // شارة الخصم
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${product.discountPercentage.toStringAsFixed(0)}% خصم',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            // السعر النهائي
+                            Text(
+                              '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ] else
+                            Text(
+                              '${product.finalPrice.toStringAsFixed(0)} ${currencyProvider.currencyCode}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
+                  ),
+                  
+                  // شارات إضافية في الأعلى
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    child: Row(
+                      children: [
+                        if (product.isNew)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'جديد',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        if (product.isNew && product.isHot) const SizedBox(width: 8),
+                        if (product.isHot)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'ساخن',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -363,7 +527,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFilterSection(BuildContext context,
-      AppLocalizations localization, ProductProvider productProvider) {
+      AppLocalizations localization, EnhancedProductProvider productProvider) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),

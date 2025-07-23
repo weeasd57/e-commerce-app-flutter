@@ -8,7 +8,7 @@ import 'package:ecommerce/providers/wishlist_provider.dart';
 import 'package:ecommerce/utils/responsive_helper.dart';
 import 'package:ecommerce/providers/color_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ecommerce/widgets/offline_cached_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image_provider.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final Product product;

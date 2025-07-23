@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce/providers/theme_provider.dart';
 import 'package:ecommerce/providers/language_provider.dart';
 import 'package:ecommerce/utils/app_themes.dart';
-import 'package:ecommerce/providers/product_provider.dart';
+import 'package:ecommerce/providers/enhanced_product_provider.dart';
 import 'package:ecommerce/providers/category_provider.dart';
 import 'package:ecommerce/providers/auth_provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
@@ -46,7 +46,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => EnhancedProductProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => ColorProvider(prefs)),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
@@ -83,7 +83,7 @@ class _MyAppState extends State<MyApp> {
   
   void _startRealTimeUpdates() {
     // Fetch initial data for products and categories
-    final productProvider = context.read<ProductProvider>();
+    final productProvider = context.read<EnhancedProductProvider>();
     final categoryProvider = context.read<CategoryProvider>();
     
     productProvider.fetchProducts();

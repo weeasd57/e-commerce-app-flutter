@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce/models/category.dart';
-import 'package:ecommerce/widgets/offline_cached_image.dart';
+import 'package:ecommerce/widgets/offline_cached_image_provider.dart';
 
 class CategoryCard extends StatelessWidget {
   final Category category;
