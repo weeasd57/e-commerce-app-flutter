@@ -14,7 +14,6 @@ import 'package:ecommerce/models/product.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce/pages/product_details_page.dart';
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -70,7 +69,8 @@ class _HomePageState extends State<HomePage> {
           ),
           child: Consumer<EnhancedProductProvider>(
             builder: (context, productProvider, child) {
-              if (productProvider.isLoading && productProvider.products.isEmpty) {
+              if (productProvider.isLoading &&
+                  productProvider.products.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -82,17 +82,20 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               }
-              
-              if (productProvider.hasError && productProvider.products.isEmpty) {
+
+              if (productProvider.hasError &&
+                  productProvider.products.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Error: ${productProvider.errorMessage}'),
+                      Text(
+                          '${localization.error}: ${productProvider.errorMessage}'),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => productProvider.fetchProducts(forceRefresh: true),
-                        child: const Text('Retry'),
+                        onPressed: () =>
+                            productProvider.fetchProducts(forceRefresh: true),
+                        child: Text(localization.retry),
                       ),
                     ],
                   ),
@@ -115,43 +118,78 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               // شعار الترحيب
                               Container(
-                                margin: const EdgeInsets.symmetric(vertical: 16),
-                                padding: const EdgeInsets.all(20),
+                                margin: EdgeInsets.only(
+                                    bottom: Responsive.getPadding(context, 24),
+                                    top: Responsive.getPadding(context, 16)),
+                                padding: EdgeInsets.all(
+                                    Responsive.getPadding(context, 24)),
                                 decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                                      Theme.of(context).primaryColor.withValues(alpha: 0.05),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
+                                  color: Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.04),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(
-                                      Icons.shopping_bag,
-                                      size: 32,
-                                      color: Theme.of(context).primaryColor,
+                                    Container(
+                                      padding: EdgeInsets.all(
+                                          Responsive.getPadding(context, 12)),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .primaryColor
+                                            .withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Icon(
+                                        Icons.shopping_bag_outlined,
+                                        size:
+                                            Responsive.getFontSize(context, 28),
+                                        color: Theme.of(context).primaryColor,
+                                      ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    SizedBox(
+                                        width:
+                                            Responsive.getPadding(context, 16)),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-'مرحباً بك',
-                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            localization.hello,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleLarge
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize:
+                                                      Responsive.getFontSize(
+                                                          context, 24),
+                                                ),
                                           ),
-                                          const SizedBox(height: 4),
+                                          SizedBox(
+                                              height: Responsive.getPadding(
+                                                  context, 6)),
                                           Text(
-'اكتشف أحدث المنتجات والعروض المميزة',
-                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                              color: Colors.grey[600],
-                                            ),
+                                            localization.discoverLatestProducts,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface
+                                                      .withValues(alpha: 0.7),
+                                                  fontSize:
+                                                      Responsive.getFontSize(
+                                                          context, 16),
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -159,21 +197,25 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                               ),
-                              
+
                               // معرض الصور المنزلق
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 child: products.isEmpty
                                     ? Container(
                                         height: 200,
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
                                           color: Colors.grey[100],
-                                          borderRadius: BorderRadius.circular(16),
-                                          border: Border.all(color: Colors.grey[300]!),
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          border: Border.all(
+                                              color: Colors.grey[300]!),
                                         ),
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Icon(
                                               Icons.inventory_2_outlined,
@@ -182,10 +224,14 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                             const SizedBox(height: 12),
                                             Text(
-                                              localization.noProductsForCarousel,
-                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                color: Colors.grey[600],
-                                              ),
+                                              localization
+                                                  .noProductsForCarousel,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(
+                                                    color: Colors.grey[600],
+                                                  ),
                                               textAlign: TextAlign.center,
                                             ),
                                           ],
@@ -193,42 +239,71 @@ class _HomePageState extends State<HomePage> {
                                       )
                                     : CarouselSlider(
                                         options: CarouselOptions(
-                                          height: Responsive.isDesktop(context) ? 300 : 220,
+                                          height: Responsive.isDesktop(context)
+                                              ? 350
+                                              : Responsive.isTablet(context)
+                                                  ? 280
+                                                  : 220,
                                           autoPlay: true,
-                                          autoPlayInterval: const Duration(seconds: 4),
-                                          autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                                          viewportFraction: 0.9,
+                                          autoPlayInterval:
+                                              const Duration(seconds: 4),
+                                          autoPlayAnimationDuration:
+                                              const Duration(milliseconds: 800),
+                                          viewportFraction:
+                                              Responsive.isDesktop(context)
+                                                  ? 0.85
+                                                  : Responsive.isTablet(context)
+                                                      ? 0.9
+                                                      : 0.9,
                                           enlargeCenterPage: true,
                                           enableInfiniteScroll: true,
                                         ),
-                                        items: products.take(5) // عرض أول 5 منتجات فقط
-                                            .map((product) => _buildCarouselItem(product, currencyProvider))
+                                        items: products
+                                            .take(5) // عرض أول 5 منتجات فقط
+                                            .map((product) =>
+                                                _buildCarouselItem(
+                                                    product, currencyProvider))
                                             .toList(),
                                       ),
                               ),
-                              
-                              const SizedBox(height: 32),
+
+                              SizedBox(
+                                  height: Responsive.getPadding(context, 32)),
                               Text(
                                 localization.newArrivals,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize:
+                                          Responsive.getFontSize(context, 22),
+                                    ),
                               ),
-                              const SizedBox(height: 24),
+                              SizedBox(
+                                  height: Responsive.getPadding(context, 24)),
                               Text(
                                 localization.categories,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize:
+                                          Responsive.getFontSize(context, 22),
+                                    ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(
+                                  height: Responsive.getPadding(context, 16)),
                               categories.isEmpty
                                   ? Container(
                                       height: 120,
                                       alignment: Alignment.center,
                                       child: Text(
                                         localization.noCategoriesAvailable,
-                                        style: Theme.of(context).textTheme.titleMedium,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
                                       ),
                                     )
                                   : SizedBox(
@@ -257,15 +332,22 @@ class _HomePageState extends State<HomePage> {
                                         },
                                       ),
                                     ),
-                              const SizedBox(height: 24),
+                              SizedBox(
+                                  height: Responsive.getPadding(context, 24)),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     localization.allProducts,
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: Responsive.getFontSize(
+                                              context, 22),
+                                        ),
                                   ),
                                   TextButton.icon(
                                     onPressed: () {
@@ -294,18 +376,26 @@ class _HomePageState extends State<HomePage> {
                                 alignment: Alignment.center,
                                 child: Text(
                                   localization.noProductsAvailable,
-                                  style: Theme.of(context).textTheme.titleMedium,
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
                                 ),
                               ),
                             )
                           : SliverPadding(
                               padding: Responsive.scaffoldPadding(context),
                               sliver: SliverGrid(
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: Responsive.gridCrossAxisCount(context),
-                                  childAspectRatio: 0.7,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount:
+                                      Responsive.gridCrossAxisCount(context),
+                                  // تحسين نسبة العرض إلى الارتفاع لتقليل المساحات الفارغة
+                                  childAspectRatio: Responsive.isMobile(context) 
+                                      ? 0.75 
+                                      : Responsive.isTablet(context) 
+                                          ? 0.8 
+                                          : 0.85,
+                                  crossAxisSpacing: Responsive.isMobile(context) ? 8 : 12,
+                                  mainAxisSpacing: Responsive.isMobile(context) ? 8 : 12,
                                 ),
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {
@@ -330,7 +420,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCarouselItem(Product product, CurrencyProvider currencyProvider) {
+  Widget _buildCarouselItem(
+      Product product, CurrencyProvider currencyProvider) {
+    final localization = AppLocalizations.of(context)!;
     return Builder(
       builder: (BuildContext context) {
         return GestureDetector(
@@ -343,22 +435,29 @@ class _HomePageState extends State<HomePage> {
             );
           },
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8.0),
+            margin: EdgeInsets.symmetric(
+              horizontal: Responsive.getPadding(context, 8.0),
+            ),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(
+                Responsive.getPadding(context, 20),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: Responsive.getPadding(context, 15),
                   offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(
+                Responsive.getPadding(context, 20),
+              ),
               child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  // صورة المنتج
+                  // صورة المنتج مع تحسينات
                   Container(
                     width: double.infinity,
                     height: double.infinity,
@@ -366,26 +465,98 @@ class _HomePageState extends State<HomePage> {
                         ? OfflineCachedImage(
                             imageUrl: product.imageUrls.first,
                             fit: BoxFit.cover,
-                            borderRadius: BorderRadius.circular(20),
+                            width: double.infinity,
+                            height: double.infinity,
+                            memCacheWidth:
+                                Responsive.isDesktop(context) ? 600 : 400,
+                            memCacheHeight:
+                                Responsive.isDesktop(context) ? 450 : 300,
+                            cacheKey:
+                                'carousel_${product.id}_${product.imageUrls.first.hashCode}',
+                            borderRadius: BorderRadius.circular(
+                              Responsive.getPadding(context, 20),
+                            ),
+                            placeholder: Container(
+                              color: Colors.grey[100],
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.image_outlined,
+                                      size: Responsive.getFontSize(context, 48),
+                                      color: Colors.grey[400],
+                                    ),
+                                    SizedBox(
+                                        height:
+                                            Responsive.getPadding(context, 8)),
+                                    Text(
+                                      localization.loadingImage,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: Responsive.getFontSize(context, 14),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                             errorWidget: Container(
                               color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.image_not_supported,
-                                size: 50,
-                                color: Colors.grey,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image_outlined,
+                                      size: Responsive.getFontSize(context, 48),
+                                      color: Colors.grey[400],
+                                    ),
+                                    SizedBox(
+                                        height:
+                                            Responsive.getPadding(context, 8)),
+                                    Text(
+                                      localization.imageNotAvailable,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: Responsive.getFontSize(context, 14),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           )
                         : Container(
                             color: Colors.grey[200],
-                            child: const Icon(
-                              Icons.shopping_bag,
-                              size: 50,
-                              color: Colors.grey,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.shopping_bag_outlined,
+                                    size: Responsive.getFontSize(context, 60),
+                                    color: Colors.grey[400],
+                                  ),
+                                  SizedBox(
+                                      height:
+                                          Responsive.getPadding(context, 12)),
+                                  Text(
+                                    localization.noImageAvailable,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: Responsive.getFontSize(context, 16),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                   ),
-                  
+
                   // تدرج شفاف في الأسفل
                   Positioned(
                     bottom: 0,
@@ -418,7 +589,7 @@ class _HomePageState extends State<HomePage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 8),
-                          
+
                           // معلومات السعر
                           if (product.hasDiscount) ...[
                             Row(
@@ -435,7 +606,8 @@ class _HomePageState extends State<HomePage> {
                                 const SizedBox(width: 8),
                                 // شارة الخصم
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: Colors.red,
                                     borderRadius: BorderRadius.circular(12),
@@ -474,7 +646,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  
+
                   // شارات إضافية في الأعلى
                   Positioned(
                     top: 16,
@@ -483,7 +655,8 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         if (product.isNew)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.green,
                               borderRadius: BorderRadius.circular(12),
@@ -497,10 +670,12 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-                        if (product.isNew && product.isHot) const SizedBox(width: 8),
+                        if (product.isNew && product.isHot)
+                          const SizedBox(width: 8),
                         if (product.isHot)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.orange,
                               borderRadius: BorderRadius.circular(12),
@@ -528,48 +703,69 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildFilterSection(BuildContext context,
       AppLocalizations localization, EnhancedProductProvider productProvider) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
-            offset: const Offset(0, 5),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            localization.filters,
-            style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            children: [
+              Icon(
+                Icons.filter_list,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                localization.filters,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
           ),
-          const Divider(),
+          const SizedBox(height: 16),
+
+          // Filter chips section
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              FilterChip(
-                label: Text(localization.onSale),
+              _buildFilterChip(
+                context,
+                label: localization.onSale,
+                icon: Icons.local_offer,
                 selected: productProvider.showOnSale,
                 onSelected: (selected) {
                   productProvider.setShowOnSale(selected);
                 },
               ),
-              FilterChip(
-                label: Text(localization.hotItems),
+              _buildFilterChip(
+                context,
+                label: localization.hotItems,
+                icon: Icons.local_fire_department,
                 selected: productProvider.showHotItems,
                 onSelected: (selected) {
                   productProvider.setShowHotItems(selected);
                 },
               ),
-              FilterChip(
-                label: Text(localization.newArrivals),
+              _buildFilterChip(
+                context,
+                label: localization.newArrivals,
+                icon: Icons.new_releases,
                 selected: productProvider.showNewArrivals,
                 onSelected: (selected) {
                   productProvider.setShowNewArrivals(selected);
@@ -577,18 +773,37 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            localization.sortBy,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+
+          const SizedBox(height: 20),
           const Divider(),
+          const SizedBox(height: 16),
+
+          Row(
+            children: [
+              Icon(
+                Icons.sort,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                localization.sortBy,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Sort chips section
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              ChoiceChip(
-                label: Text(localization.newest),
+              _buildSortChip(
+                context,
+                label: localization.newest,
                 selected: productProvider.sortOption == SortOption.newest,
                 onSelected: (selected) {
                   if (selected) {
@@ -596,8 +811,9 @@ class _HomePageState extends State<HomePage> {
                   }
                 },
               ),
-              ChoiceChip(
-                label: Text(localization.priceHighToLow),
+              _buildSortChip(
+                context,
+                label: localization.priceHighToLow,
                 selected:
                     productProvider.sortOption == SortOption.priceHighToLow,
                 onSelected: (selected) {
@@ -606,8 +822,9 @@ class _HomePageState extends State<HomePage> {
                   }
                 },
               ),
-              ChoiceChip(
-                label: Text(localization.priceLowToHigh),
+              _buildSortChip(
+                context,
+                label: localization.priceLowToHigh,
                 selected:
                     productProvider.sortOption == SortOption.priceLowToHigh,
                 onSelected: (selected) {
@@ -618,15 +835,20 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
+              TextButton.icon(
                 onPressed: () {
                   productProvider.clearFilters();
                 },
-                child: Text(localization.clearFilters),
+                icon: const Icon(Icons.clear_all, size: 18),
+                label: Text(localization.clearFilters),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
               ),
             ],
           ),
@@ -635,6 +857,59 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildFilterChip(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required bool selected,
+    required ValueChanged<bool> onSelected,
+  }) {
+    return FilterChip(
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: selected
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurface,
+          ),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
+      ),
+      selected: selected,
+      onSelected: onSelected,
+      selectedColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+    );
+  }
+
+  Widget _buildSortChip(
+    BuildContext context, {
+    required String label,
+    required bool selected,
+    required ValueChanged<bool> onSelected,
+  }) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: onSelected,
+      selectedColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      labelStyle: TextStyle(
+        color: selected
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurface,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+    );
+  }
 }
-
-

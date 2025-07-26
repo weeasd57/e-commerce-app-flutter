@@ -206,6 +206,12 @@ abstract class AppLocalizations {
   /// **'An unknown error occurred.'**
   String get anUnknownErrorOccurred;
 
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
   /// No description provided for @name.
   ///
   /// In en, this message translates to:
@@ -409,6 +415,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Welcome'**
   String get welcome;
+
+  /// No description provided for @hello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello'**
+  String get hello;
+
+  /// No description provided for @discoverLatestProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover our latest products and amazing deals'**
+  String get discoverLatestProducts;
 
   /// No description provided for @selectLanguage.
   ///
@@ -925,6 +943,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gradient changed successfully'**
   String get gradientChangedSuccessfully;
+
+  /// No description provided for @loadingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading image...'**
+  String get loadingImage;
+
+  /// No description provided for @imageNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Image not available'**
+  String get imageNotAvailable;
+
+  /// No description provided for @noImageAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No image available'**
+  String get noImageAvailable;
 }
 
 class _AppLocalizationsDelegate

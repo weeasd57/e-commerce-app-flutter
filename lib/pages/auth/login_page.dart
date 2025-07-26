@@ -4,6 +4,7 @@ import 'package:ecommerce/providers/auth_provider.dart';
 import 'package:ecommerce/providers/cart_provider.dart';
 import 'package:ecommerce/providers/navigation_provider.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
+import 'package:ecommerce/utils/responsive_helper.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onRegisterTap;
@@ -33,21 +34,40 @@ class _LoginPageState extends State<LoginPage> {
     final localization = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(Responsive.getPadding(context, 20)),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // إضافة مساحة إضافية في الأعلى للشاشات الصغيرة
+            SizedBox(height: Responsive.getHeight(context, 20)),
+            
+            // حقل البريد الإلكتروني
             TextFormField(
               controller: _emailController,
               decoration: InputDecoration(
                 labelText: localization.email,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+                labelStyle: TextStyle(
+                  fontSize: Responsive.getFontSize(context, 14),
                 ),
-                prefixIcon: const Icon(Icons.email_outlined),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(
+                    Responsive.isDesktop(context) ? 20 : 15,
+                  ),
+                ),
+                prefixIcon: Icon(
+                  Icons.email_outlined,
+                  size: Responsive.getFontSize(context, 24),
+                ),
                 filled: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: Responsive.getPadding(context, 16),
+                  vertical: Responsive.getPadding(context, 16),
+                ),
+              ),
+              style: TextStyle(
+                fontSize: Responsive.getFontSize(context, 16),
               ),
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
@@ -57,20 +77,31 @@ class _LoginPageState extends State<LoginPage> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: Responsive.getHeight(context, 16)),
+            
+            // حقل كلمة المرور
             TextFormField(
               controller: _passwordController,
               decoration: InputDecoration(
                 labelText: localization.password,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+                labelStyle: TextStyle(
+                  fontSize: Responsive.getFontSize(context, 14),
                 ),
-                prefixIcon: const Icon(Icons.lock_outline),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(
+                    Responsive.isDesktop(context) ? 20 : 15,
+                  ),
+                ),
+                prefixIcon: Icon(
+                  Icons.lock_outline,
+                  size: Responsive.getFontSize(context, 24),
+                ),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
+                    size: Responsive.getFontSize(context, 24),
                   ),
                   onPressed: () {
                     setState(() {
@@ -79,6 +110,13 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 filled: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: Responsive.getPadding(context, 16),
+                  vertical: Responsive.getPadding(context, 16),
+                ),
+              ),
+              style: TextStyle(
+                fontSize: Responsive.getFontSize(context, 16),
               ),
               obscureText: _obscurePassword,
               validator: (value) {
@@ -88,7 +126,9 @@ class _LoginPageState extends State<LoginPage> {
                 return null;
               },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: Responsive.getHeight(context, 24)),
+            
+            // زر تسجيل الدخول
             ElevatedButton(
               onPressed: _isLoading
                   ? null
@@ -126,23 +166,39 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     },
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: Size(
+                  double.infinity, 
+                  Responsive.getHeight(context, 50),
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(
+                    Responsive.isDesktop(context) ? 20 : 15,
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: Responsive.getPadding(context, 12),
                 ),
               ),
               child: _isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
+                  ? SizedBox(
+                      height: Responsive.getHeight(context, 20),
+                      width: Responsive.getWidth(context, 20),
+                      child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text(localization.signIn),
+                  : Text(
+                      localization.signIn,
+                      style: TextStyle(
+                        fontSize: Responsive.getFontSize(context, 16),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: Responsive.getHeight(context, 20)),
+            
+            // زر تسجيل الدخول باستخدام Google
             OutlinedButton.icon(
               onPressed: _isLoading
                   ? null
@@ -168,28 +224,59 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     },
               style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: Size(
+                  double.infinity, 
+                  Responsive.getHeight(context, 50),
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(
+                    Responsive.isDesktop(context) ? 20 : 15,
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: Responsive.getPadding(context, 12),
                 ),
               ),
               icon: Image.asset(
                 'assets/images/google_logo.png',
-                height: 24,
+                height: Responsive.getHeight(context, 24),
               ),
-              label: Text(localization.signInWithGoogle),
+              label: Text(
+                localization.signInWithGoogle,
+                style: TextStyle(
+                  fontSize: Responsive.getFontSize(context, 16),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            SizedBox(height: Responsive.getHeight(context, 20)),
+            
+            // رابط إنشاء حساب جديد
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text(localization.dontHaveAccount),
+                Text(
+                  localization.dontHaveAccount,
+                  style: TextStyle(
+                    fontSize: Responsive.getFontSize(context, 14),
+                  ),
+                ),
                 TextButton(
                   onPressed: widget.onRegisterTap,
-                  child: Text(localization.createAccount),
+                  child: Text(
+                    localization.createAccount,
+                    style: TextStyle(
+                      fontSize: Responsive.getFontSize(context, 14),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
+            
+            // مساحة إضافية في الأسفل
+            SizedBox(height: Responsive.getHeight(context, 20)),
           ],
         ),
       ),

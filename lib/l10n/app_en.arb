@@ -18,6 +18,7 @@
     "operationNotAllowed": "Operation not allowed.",
     "userDisabled": "User account has been disabled.",
     "anUnknownErrorOccurred": "An unknown error occurred.",
+    "error": "Error",
     "name": "Name",
     "email": "Email",
     "password": "Password",
@@ -52,6 +53,8 @@
     "addedToWishlist": "Added to wishlist",
     "removedFromWishlist": "Removed from wishlist",
     "welcome": "Welcome",
+    "hello": "Hello",
+    "discoverLatestProducts": "Discover our latest products and amazing deals",
     "selectLanguage": "Select your language",
     "loginRequired": "Login Required",
     "loginToAddCart": "You must be logged in to add items to the cart.",
@@ -137,5 +140,8 @@
     "solidColors": "Solid Colors",
     "gradientColors": "Gradient Colors",
     "colorChangedSuccessfully": "Color changed successfully",
-    "gradientChangedSuccessfully": "Gradient changed successfully"
+    "gradientChangedSuccessfully": "Gradient changed successfully",
+    "loadingImage": "Loading image...",
+    "imageNotAvailable": "Image not available",
+    "noImageAvailable": "No image available"
 }

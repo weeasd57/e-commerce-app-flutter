@@ -103,9 +103,9 @@ class CategoriesPage extends StatelessWidget {
                             right: 10,
                             child: Text(
                               category.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: Responsive.getFontSize(context, 18),
                                 fontWeight: FontWeight.bold,
                               ),
                               textAlign: TextAlign.center,

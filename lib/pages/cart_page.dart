@@ -6,7 +6,7 @@ import 'package:ecommerce/pages/checkout_page.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/providers/currency_provider.dart';
-import 'package:ecommerce/widgets/offline_cached_image_provider.dart';
+import 'package:ecommerce/widgets/cart_item_widget.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -40,120 +40,7 @@ class CartPage extends StatelessWidget {
                     child: ListView.builder(
                       itemCount: cartProvider.items.length,
                       itemBuilder: (context, index) {
-                        final item = cartProvider.items[index];
-                        return Dismissible(
-                          key: Key(item.id),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            color: Colors.red,
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 16),
-                            child:
-                                const Icon(Icons.delete, color: Colors.white),
-                          ),
-                          onDismissed: (_) {
-                            cartProvider.removeFromCart(item.id);
-                          },
-                          child: Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: ListTile(
-                              leading: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: OfflineCachedImage(
-                                    imageUrl: item.imageUrl.isNotEmpty 
-                                        ? item.imageUrl 
-                                        : '',
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                    memCacheWidth: 100,
-                                    memCacheHeight: 100,
-                                    cacheKey: 'cart_${item.id}_${item.imageUrl.isNotEmpty ? item.imageUrl.hashCode : 0}',
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    showOfflineIndicator: false,
-                                    placeholder: Container(
-                                      width: 50,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8.0),
-                                      ),
-                                      child: Center(
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                                Theme.of(context).primaryColor),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    errorWidget: Container(
-                                      width: 50,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[300],
-                                        borderRadius: BorderRadius.circular(8.0),
-                                      ),
-                                      child: Icon(
-                                        Icons.shopping_bag,
-                                        color: Colors.grey[600],
-                                        size: 20,
-                                      ),
-                                    ),
-                                    offlineWidget: Container(
-                                      width: 50,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[300],
-                                        borderRadius: BorderRadius.circular(8.0),
-                                      ),
-                                      child: Icon(
-                                        Icons.shopping_bag,
-                                        color: Colors.grey[600],
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              title: Text(item.name),
-                              subtitle: Text(
-                                  '${item.price} ${currencyProvider.currencyCode}'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove),
-                                    onPressed: item.quantity > 1
-                                        ? () => cartProvider.updateQuantity(
-                                            item.id, item.quantity - 1)
-                                        : null,
-                                  ),
-                                  Text('${item.quantity}'),
-                                  IconButton(
-                                    icon: const Icon(Icons.add),
-                                    onPressed: () =>
-                                        cartProvider.updateQuantity(
-                                            item.id, item.quantity + 1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
+                        return CartItemWidget(index: index);
                       },
                     ),
                   ),

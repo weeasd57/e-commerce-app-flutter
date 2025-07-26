@@ -116,11 +116,13 @@ class _MyAppState extends State<MyApp> {
             isDark: false,
             primaryColor: primaryColor,
             gradientColors: gradientColors,
+            locale: languageProvider.locale,
           ),
           darkTheme: AppThemes.getTheme(
             isDark: true,
             primaryColor: primaryColor,
             gradientColors: gradientColors,
+            locale: languageProvider.locale,
           ),
           themeMode: themeProvider.themeMode,
           locale: languageProvider.locale,
@@ -131,6 +133,15 @@ class _MyAppState extends State<MyApp> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          // إضافة دعم RTL للنصوص العربية
+          builder: (context, child) {
+            return Directionality(
+              textDirection: languageProvider.locale.languageCode == 'ar' 
+                  ? TextDirection.rtl 
+                  : TextDirection.ltr,
+              child: child!,
+            );
+          },
           home: _isLandingPageSeen
               ? PopScope(
                   canPop: false,
@@ -214,10 +225,19 @@ class Home extends StatelessWidget {
 
         return Scaffold(
           appBar: appBar,
-          body: Column(
+          body: Stack(
             children: [
-              const OfflineIndicator(),
-              Expanded(child: navigationProvider.currentPage),
+              // محتوى الصفحة
+              Positioned.fill(
+                child: navigationProvider.currentPage,
+              ),
+              // مؤشر عدم الاتصال
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: const OfflineIndicator(),
+              ),
             ],
           ),
           bottomNavigationBar: bottomNav,

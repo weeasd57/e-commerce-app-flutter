@@ -64,6 +64,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get anUnknownErrorOccurred => 'حدث خطأ غير معروف.';
 
   @override
+  String get error => 'خطأ';
+
+  @override
   String get name => 'الاسم';
 
   @override
@@ -168,6 +171,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get welcome => 'أهلاً بك!';
+
+  @override
+  String get hello => 'مرحباً';
+
+  @override
+  String get discoverLatestProducts => 'اكتشف أحدث منتجاتنا والعروض المذهلة';
 
   @override
   String get selectLanguage => 'اختر لغتك';
@@ -440,4 +449,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get gradientChangedSuccessfully => 'تم تغيير التدرج اللوني بنجاح';
+
+  @override
+  String get loadingImage => 'جاري تحميل الصورة...';
+
+  @override
+  String get imageNotAvailable => 'الصورة غير متوفرة';
+
+  @override
+  String get noImageAvailable => 'لا توجد صورة متاحة';
 }

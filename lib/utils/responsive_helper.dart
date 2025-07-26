@@ -40,4 +40,39 @@ class Responsive {
     if (isTablet(context)) return size * 1.1;
     return size;
   }
+
+  // دالة للحصول على حجم الخط المتجاوب
+  static double getFontSize(BuildContext context, double size) {
+    if (isDesktop(context)) return size * 1.2;
+    if (isTablet(context)) return size * 1.1;
+    return size;
+  }
+
+  // دالة للحصول على الحشو المتجاوب
+  static double getPadding(BuildContext context, double padding) {
+    if (isDesktop(context)) return padding * 1.3;
+    if (isTablet(context)) return padding * 1.15;
+    return padding;
+  }
+
+  // دالة للحصول على الهوامش المتجاوبة
+  static double getMargin(BuildContext context, double margin) {
+    if (isDesktop(context)) return margin * 1.2;
+    if (isTablet(context)) return margin * 1.1;
+    return margin;
+  }
+
+  // دالة للحصول على ارتفاع العنصر المتجاوب
+  static double getHeight(BuildContext context, double height) {
+    if (isDesktop(context)) return height * 1.2;
+    if (isTablet(context)) return height * 1.1;
+    return height;
+  }
+
+  // دالة للحصول على عرض العنصر المتجاوب
+  static double getWidth(BuildContext context, double width) {
+    if (isDesktop(context)) return width * 1.2;
+    if (isTablet(context)) return width * 1.1;
+    return width;
+  }
 }

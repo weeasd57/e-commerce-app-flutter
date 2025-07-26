@@ -18,6 +18,7 @@
     "operationNotAllowed": "العملية غير مسموح بها.",
     "userDisabled": "تم تعطيل حساب المستخدم.",
     "anUnknownErrorOccurred": "حدث خطأ غير معروف.",
+    "error": "خطأ",
     "name": "الاسم",
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",
@@ -52,6 +53,8 @@
     "addedToWishlist": "تمت الإضافة إلى المفضلة.",
     "removedFromWishlist": "تمت الإزالة من المفضلة.",
     "welcome": "أهلاً بك!",
+    "hello": "مرحباً",
+    "discoverLatestProducts": "اكتشف أحدث منتجاتنا والعروض المذهلة",
     "selectLanguage": "اختر لغتك",
     "loginRequired": "تسجيل الدخول مطلوب",
     "loginToAddCart": "يجب تسجيل الدخول لإضافة المنتجات إلى السلة.",
@@ -137,5 +140,8 @@
     "solidColors": "الألوان الأساسية",
     "gradientColors": "التدرجات اللونية",
     "colorChangedSuccessfully": "تم تغيير اللون بنجاح",
-    "gradientChangedSuccessfully": "تم تغيير التدرج اللوني بنجاح"
+    "gradientChangedSuccessfully": "تم تغيير التدرج اللوني بنجاح",
+    "loadingImage": "جاري تحميل الصورة...",
+    "imageNotAvailable": "الصورة غير متوفرة",
+    "noImageAvailable": "لا توجد صورة متاحة"
 }

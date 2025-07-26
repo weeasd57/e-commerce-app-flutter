@@ -64,6 +64,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anUnknownErrorOccurred => 'An unknown error occurred.';
 
   @override
+  String get error => 'Error';
+
+  @override
   String get name => 'Name';
 
   @override
@@ -169,6 +172,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcome => 'Welcome';
+
+  @override
+  String get hello => 'Hello';
+
+  @override
+  String get discoverLatestProducts =>
+      'Discover our latest products and amazing deals';
 
   @override
   String get selectLanguage => 'Select your language';
@@ -443,4 +453,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gradientChangedSuccessfully => 'Gradient changed successfully';
+
+  @override
+  String get loadingImage => 'Loading image...';
+
+  @override
+  String get imageNotAvailable => 'Image not available';
+
+  @override
+  String get noImageAvailable => 'No image available';
 }

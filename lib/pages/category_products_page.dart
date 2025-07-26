@@ -43,7 +43,7 @@ class CategoryProductsPage extends StatelessWidget {
               return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: Responsive.gridCrossAxisCount(context),
-                  childAspectRatio: 0.7,
+                  childAspectRatio: 0.8,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),

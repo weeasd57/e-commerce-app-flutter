@@ -10,6 +10,7 @@ import 'package:ecommerce/l10n/app_localizations.dart';
 import 'package:ecommerce/utils/custom_page_route.dart';
 import 'package:ecommerce/providers/language_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce/providers/connectivity_provider.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -30,11 +31,17 @@ class ProfilePage extends StatelessWidget {
     final user = authProvider.user!;
     final localization = AppLocalizations.of(context)!;
 
-    return SingleChildScrollView(
-      child: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          children: [
+    return Consumer<ConnectivityProvider>(
+      builder: (context, connectivityProvider, child) {
+        final topPadding = connectivityProvider.showOfflineIndicator ? 60.0 : 16.0;
+        
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.0, topPadding, 16.0, 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
             const SizedBox(height: 20),
             Center(
               child: Column(
@@ -150,8 +157,9 @@ class ProfilePage extends StatelessWidget {
             ),
             // تم حذف خيارات المساعدة ومن نحن بناءً على طلب المستخدم
             const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(20),
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
               child: ElevatedButton(
                 onPressed: () => authProvider.signOut(),
                 style: ElevatedButton.styleFrom(
@@ -167,10 +175,12 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

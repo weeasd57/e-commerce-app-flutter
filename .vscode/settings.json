@@ -1,4 +1,7 @@
 {
     "dart.flutterCustomEmulators": [],
-    "cmake.sourceDirectory": "D:/MY WORK/FLUTTER_PROJECCTS/flutter_E-commerce-APP/windows/runner"
+    "cmake.sourceDirectory": "D:/MY WORK/FLUTTER_PROJECCTS/flutter_E-commerce-APP/windows/runner",
+    "Codegeex.SidebarUI.LanguagePreference": "English",
+    "Codegeex.Chat.LanguagePreference": "English",
+    "Codegeex.Comment.LanguagePreference": "English"
 }

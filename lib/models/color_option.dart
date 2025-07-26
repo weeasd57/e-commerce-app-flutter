@@ -19,13 +19,13 @@ class ColorOption {
     if (isGradient) {
       return {
         'isGradient': true,
-        'colors': gradientColors!.map((c) => c.value).toList(),
+        'colors': gradientColors!.map((c) => c.toARGB32()).toList(),
         'name': name,
       };
     }
     return {
       'isGradient': false,
-      'color': solidColor!.value,
+      'color': solidColor!.toARGB32(),
     };
   }
 
